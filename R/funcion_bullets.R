@@ -1,6 +1,3 @@
-#' funcion bullets
-#' @export
-
 reporte_de_situacion<-function(fecha_de_trabajo){ ####
  fecha_de_trabajo<-fecha_de_trabajo
   #Cargamos la base de datos de la OMS
