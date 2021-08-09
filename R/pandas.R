@@ -88,7 +88,11 @@ pandas <- function(fecha_de_trabajo) {
     global<-setDT(global, keep.rownames = TRUE)[] %>%
       rename("Región OMS"=1)
 
-
+if(!dir.exists("dir")){
+  dir.create("dir")
+}else{
+  print("Directorio existente")
+}
 
     dir <-paste0("dir/",format(fecha_de_trabajo, format="%Y%m%d"))
 
