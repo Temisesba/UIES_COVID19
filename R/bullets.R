@@ -17,5 +17,11 @@ bullets<-function(fecha_de_trabajo){
 
   OMS<-reporte_de_situacion(fecha_de_trabajo)
 
+if(OMS[2]>=237){
 
-  }
+  DATOS<-graficas_tablas(OMS[1],OMS[3])
+  return(DATOS)
+}
+}
+
+
