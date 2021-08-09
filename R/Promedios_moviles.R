@@ -85,7 +85,7 @@ Promedios_moviles<-function(fecha_de_trabajo){
                 `PM Defunciones nuevas millon de habitantes`=round(mean(`Defunciones nuevas millon de habitantes`),2))
   }
 
-  PM<-data.frame(Reduce(rbind,promedios_moviles)) %>%
+  PM<-plyr::rbind.fill(promedios_moviles) %>%
     rename(Fecha=1)
 
 
