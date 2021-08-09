@@ -91,15 +91,10 @@ Promedios_moviles<-function(fecha_de_trabajo){
 
   PM_final<-left_join(situacion_PM,PM)
 
-  if(!dir.exists("productos")){
-    dir.create("productos")
-  }else{
-    print("Directorio existente")
-  }
 
-  write.csv(PM_final, "productos/Dashboard_Promedios_moviles.csv",row.names=F)
-
+  write.csv(PM_final, "Promedios_moviles.csv",row.names=F)
 
 
   return(print("Ya estan listos los promedios moviles."))
 }
+
