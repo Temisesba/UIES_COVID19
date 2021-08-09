@@ -92,9 +92,10 @@ Promedios_moviles<-function(fecha_de_trabajo){
   PM_final<-left_join(situacion_PM,PM)
 
 
-  write.csv(PM_final, "Promedios_moviles.csv",row.names=F)
+  # write.csv(PM_final, "Promedios_moviles.csv",row.names=F)
 
 
-  return(print("Ya estan listos los promedios moviles."))
+  # return(print("Ya estan listos los promedios moviles."))
+  return(PM_final)
 }
 
