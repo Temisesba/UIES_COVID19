@@ -12,3 +12,5 @@ pandas <- function(fecha_de_trabajo) {
   situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
                         encoding = "UTF-8")
 }
+
+
