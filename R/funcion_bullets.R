@@ -364,7 +364,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   #####tablas####
   bullet <- bullet(situacion, fecha_de_trabajo)
 
-  bullets<-bullet[["enunciado"]]
+  bullets<-bullet[[8]]
 
   tabla_a<-bullet[-8]
   a<-data.frame(Reduce(rbind, tabla_a))
@@ -398,7 +398,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   b
 
 
-  ####llamar objetos
+###llamar objetos
 
   bullets <- bullets
   global_t1 <- flextable::flextable(global_t1)
@@ -412,12 +412,14 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   b<-(b)
 
   return(list(global_t1, global_t2, grafico1, grafico2, grafico3, grafico4,
-              grafico5, bullets, a, b))
+               grafico5,bullets, a, b))
+
 
 }
 
+#bullets######
 bullet<-function(situacion, fecha_de_trabajo){
-  fecha_de_trabajo<-fecha_de_trabajo
+  fecha_de_trabajo<-(fecha_de_trabajo)
 
   Sys.setlocale("LC_TIME", "es_ES")
   Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
@@ -425,7 +427,7 @@ bullet<-function(situacion, fecha_de_trabajo){
   #Cargamos el documento de la OMS
   # situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
   #                       encoding = "UTF-8")
-
+  #
 
   #Realizamos los cáluclos para los casos y defunciones acumulados, por semana, día y letalidad.
   Casos_acumulados<-(situacion %>%
@@ -460,6 +462,19 @@ bullet<-function(situacion, fecha_de_trabajo){
     summarise( Casos_nuevos= sum(New_cases),
                Defunciones_nuevas = sum(New_deaths))
 
+  ########para tablas
+  ####nuevo
+  Casos_14d<-(situacion %>%
+                filter(Date_reported >= (fecha_de_trabajo-13) & Date_reported <= fecha_de_trabajo) %>%
+                summarise(New_cases=sum(New_cases)))$New_cases
+  Casos14d<-prettyNum(Casos_14d,big.mark=",",scientific=FALSE)
+
+  porcentaje_14<-paste0(round((Casos_14d/Casos_acumulados)*100,0),"%")
+
+  a<-"Total de casos confirmados a nivel mundial"
+  b<-"Casos confirmados en los últimos 14 días"
+  c<-"Tasa de letalidad global"
+
   ##############################################################################
   #Escribimos los tres enunciados que devolverá la función en forma de lista
 
@@ -480,6 +495,12 @@ bullet<-function(situacion, fecha_de_trabajo){
 
   enunciado<-paste(enunciado1, enunciado2, enunciado3)
 
-  return(enunciado)
+  return(list(Casos_acumulados1=Casos_acumulados1,
+              a=a,
+              Casos14d=Casos14d,
+              porcentaje_14=porcentaje_14,
+              b=b,
+              letalidad=letalidad,
+              c=c,
+              enunciado=enunciado))
 }
-
