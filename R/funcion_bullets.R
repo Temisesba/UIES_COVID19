@@ -404,7 +404,7 @@ graficas_tablas<-function(situacion,situacion_mapa){
   a<-(a)
   b<-(b)
 
-  return(grafico1, grafico2, grafico3, grafico4, grafico5, bullets, global_t1,
-         global_t2,a, b)
+  return(list(grafico1, grafico2, grafico3, grafico4, grafico5, bullets, global_t1,
+         global_t2,a, b))
 
 }
