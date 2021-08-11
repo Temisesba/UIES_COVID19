@@ -41,7 +41,20 @@ reporte_de_situacion<-function(fecha_de_trabajo){ ####
 
 
 
-graficas_tablas<-function(situacion,situacion_mapa){
+graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
+  library(ggthemes)
+  library(tidyverse)
+  library(data.table)
+  library(extrafont)
+  library(showtext)
+  library(lubridate)
+  library(magrittr)
+  library(flextable)
+  Sys.setlocale("LC_TIME", "es_ES")
+  Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
+
+  situacion<-as.data.frame(situacion)
+  situacion_mapa<-as.data.frame(situacion_mapa)
   #Creamos los factores de ordenamiento de la leyenda en el gráfico
   regiones_fact <- c("América",
                      "Europa",
@@ -108,9 +121,6 @@ graficas_tablas<-function(situacion,situacion_mapa){
                        "WPRO" = "Pacífico Occidental")) %>%
     rename("Región OMS"=1)
 
-
-
-
   #######tabla2
   global_t2 <- situacion %>%
     select(Fecha=1,
@@ -161,7 +171,6 @@ graficas_tablas<-function(situacion,situacion_mapa){
 
   ###Dar orden a las columnas####
   global_t2 <- subset(global_t2, select=c(regiones_global_t2))
-
   flextable(global_t2)
 
   global_t2 <- flextable(head(global_t2)) %>%
@@ -181,9 +190,7 @@ graficas_tablas<-function(situacion,situacion_mapa){
     font(fontname = "Montserrat", part = "all")
   global_t2
 
-
-
-  #Creamos el gráfico
+  #Creamos el gráfico1####
   #Creamos el gráfico con los casos de cada día
   #Eliminamos los casos negativos
   grafico1 <- situacion_mapa %>%
@@ -217,7 +224,7 @@ graficas_tablas<-function(situacion,situacion_mapa){
 
     scale_y_continuous(labels = scales::comma)
 
-  ########Grafico2
+  ########Grafico2####
   situacion_mapa1<-situacion_mapa %>%
     filter(Fecha==fecha_de_trabajo) %>%
     select(Region_OMS, Casos_acumulados) %>%
@@ -404,6 +411,75 @@ graficas_tablas<-function(situacion,situacion_mapa){
   a<-(a)
   b<-(b)
 
-  return(global_t1)
+  return(list(global_t1, global_t2, grafico1, grafico2, grafico3, grafico4,
+              grafico5, bullets, a, b))
 
 }
+
+bullet<-function(situacion, fecha_de_trabajo){
+  fecha_de_trabajo<-fecha_de_trabajo
+
+  Sys.setlocale("LC_TIME", "es_ES")
+  Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
+
+  #Cargamos el documento de la OMS
+  # situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
+  #                       encoding = "UTF-8")
+
+
+  #Realizamos los cáluclos para los casos y defunciones acumulados, por semana, día y letalidad.
+  Casos_acumulados<-(situacion %>%
+                       filter(Date_reported==fecha_de_trabajo) %>%
+                       summarise(Cumulative_cases=sum(Cumulative_cases)))$Cumulative_cases
+  Casos_acumulados1<-prettyNum(Casos_acumulados,big.mark=",",scientific=FALSE)
+
+
+  Casos_nuevos<-(situacion %>%
+                   filter(Date_reported==fecha_de_trabajo) %>%
+                   summarise(New_cases=sum(New_cases)))$New_cases
+  Casos_nuevos<-prettyNum(Casos_nuevos,big.mark=",",scientific=FALSE)
+
+
+  Defunciones_acumuladas<-(situacion %>%
+                             filter(Date_reported==fecha_de_trabajo) %>%
+                             summarise(Cumulative_deaths=sum(Cumulative_deaths)))$Cumulative_deaths
+  Defunciones_acumuladas1<-prettyNum(Defunciones_acumuladas,big.mark=",",scientific=FALSE)
+
+
+  Defunciones_nuevas<-prettyNum((situacion %>%
+                                   filter(Date_reported==fecha_de_trabajo) %>%
+                                   summarise(New_deaths=sum(New_deaths)))$New_deaths,big.mark=",",scientific=FALSE )
+
+
+  letalidad<- paste0(round((Defunciones_acumuladas/Casos_acumulados)*100,1),"%")
+
+
+  ultimas_24<-situacion %>%
+    mutate(Fecha=as.Date(Date_reported)) %>%
+    filter(Fecha==fecha_de_trabajo) %>%
+    summarise( Casos_nuevos= sum(New_cases),
+               Defunciones_nuevas = sum(New_deaths))
+
+  ##############################################################################
+  #Escribimos los tres enunciados que devolverá la función en forma de lista
+
+  enunciado1<-print(paste0("Al día ",Fecha," a nivel mundial, se han reportado ",
+                           Casos_acumulados1," casos confirmados (",Casos_nuevos,
+                           " casos nuevos) y ",Defunciones_acumuladas1,
+                           " defunciones (",Defunciones_nuevas,
+                           " nuevas defunciones).\n"))
+
+  enunciado3<-print(paste0("\nLa letalidad global es de ",letalidad,"."))
+
+
+  enunciado2<-print(paste("\nEn las últimas 24 horas se reportaron",
+                          prettyNum(ultimas_24$Casos_nuevos, big.mark = ","),
+                          "casos y",
+                          prettyNum(ultimas_24$Defunciones_nuevas, big.mark = ","),
+                          "defunciones a nivel global.\n"))
+
+  enunciado<-paste(enunciado1, enunciado2, enunciado3)
+
+  return(enunciado)
+}
+

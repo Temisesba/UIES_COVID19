@@ -23,8 +23,9 @@ if(OMS[2]>=237){
 
   DATOS<-graficas_tablas(fecha_de_trabajo,OMS[1],OMS[3])
 
+  return(DATOS)
   }
-  return(OMS)
+
 }
 
 
