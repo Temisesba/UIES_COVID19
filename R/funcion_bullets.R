@@ -512,6 +512,11 @@ bullet<-function(situacion, fecha_de_trabajo){
 
 ####función ppt####
 generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b,fecha_de_trabajo, grafico5){
+  if(!dir.exists("productos")){
+    dir.create("productos")
+  }else{
+    print("Directorio existente")
+  }
   fecha_de_trabajo<-fecha_de_trabajo
   library(flextable)
   library(officer)
@@ -522,8 +527,9 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
   Titulo <- ph_location_type(type = "title")
   subTitulo <- ph_location_type(type = "subTitle")
 
+  download.file("https://github.com/Temisesba/P-blico/raw/main/Plantilla.pptx", "Plantilla.pptx")
 
-  my_pres <- read_pptx("src/Plantilla.pptx")
+  my_pres <- read_pptx("Plantilla.pptx")
 
   layout_summary(my_pres)
 
@@ -613,7 +619,9 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
 
 
 
-    ####ultimo paso
+    ####ultimo paso#####
+
+
     print(my_pres, target = "productos/Situacion_Internacional.pptx") %>%
     invisible()
 
