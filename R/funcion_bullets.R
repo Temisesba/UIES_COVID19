@@ -257,7 +257,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
                   y = Casos_acumulados, label=prettyNum(Casos_acumulados,big.mark = ",")),
               vjust=-1, size=5, family="Montserrat", fontface='bold')
 
-  ############Gráfico 14 días
+  ############Gráfico 14 días####
   situacion_14<-situacion_mapa %>%
     filter(Fecha >= (fecha_de_trabajo-13) & Fecha <= fecha_de_trabajo) %>%
     select(Region_OMS, Casos_nuevos) %>%
@@ -285,7 +285,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
           axis.text.x = element_text(size = 11,face = "bold"),
           axis.text.y = element_text(size = 11,face = "bold"),
           legend.position = "none")+
-    scale_y_continuous(labels = scales::comma, limits = c(0,2500000))+
+    scale_y_continuous(labels = scales::comma, limits = c(0, max(situacion_mapa1$Casos_acumulados)+5000000))+
     geom_text(data = situacion_14 ,
               aes(x=Region_OMS,
                   y = Casos_nuevos, label=paste(prettyNum(Casos_nuevos,big.mark = ","), "")),
@@ -296,7 +296,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
                   y = Casos_nuevos, label=paste(porcentaje,"%")),
               vjust=-.3, size=5, family="Montserrat", fontface='bold', color="#8a1339")
 
-  ############Gráfico acumulado - % días
+  ############Gráfico acumulado - % días####
 
   grafico5<-ggplot()+
     geom_bar(data = situacion_mapa1,
@@ -411,6 +411,9 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   a<-(a)
   b<-(b)
 
+  #####ppt y word#####
+  generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
+
   return(list(global_t1, global_t2, grafico1, grafico2, grafico3, grafico4,
                grafico5,bullets, a, b))
 
@@ -503,4 +506,115 @@ bullet<-function(situacion, fecha_de_trabajo){
               letalidad=letalidad,
               c=c,
               enunciado=enunciado))
+}
+
+
+
+####función ppt####
+generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b,fecha_de_trabajo, grafico5){
+  fecha_de_trabajo<-fecha_de_trabajo
+  library(flextable)
+  library(officer)
+  library(magrittr)
+  library(tidyverse)
+
+  #DISTRIBUCIÓN Y TIPO DE TITULO
+  Titulo <- ph_location_type(type = "title")
+  subTitulo <- ph_location_type(type = "subTitle")
+
+
+  my_pres <- read_pptx("src/Plantilla.pptx")
+
+  layout_summary(my_pres)
+
+  # Ver marcador de posición
+  layout_properties(my_pres, layout = "Titulo", master = "Tema de Office")
+
+
+  SE<-lubridate::isoweek(fecha_de_trabajo)
+  aaaa<- lubridate::isoyear(fecha_de_trabajo)
+
+  #fuente <- fp_text(font.size = 24, font.family = "Montserrat")
+  enunciado <- block_list(fpar(ftext(bullets,
+                                     fp_text(font.size = 24,
+                                             font.family = "Montserrat"))))
+
+  # fecha_gen <- block_list(fpar(ftext(paste("Documento generado el día", Fecha),
+  #                                    fp_text(font.size = 24,
+  #                                            font.family = "Montserrat"))))
+
+
+  ########################## 1. PORTADA ######################################
+  my_pres <- add_slide(my_pres,
+                       layout = "Titulo",
+                       master = "Tema de Office") %>%
+    ph_with( "REPORTE DE SITUACIÓN INTERNACIONAL", location= Titulo) %>%
+    #Establecemos el título
+    ph_with( paste("SEMANA EPIDEMIOLÓGICA" ,SE, "DE", aaaa ),
+             location = subTitulo) %>%
+
+    #Establecemos el subtitulo
+    # ph_with( paste("Documento generado" ,SE, "DE", aaaa ),
+    #          location = ph_location_type(ph_label = "body")) %>%
+    #
+    # ph_with(value = "aaa",
+    #         ph_location_label(ph_label = "CuadroTexto 13")) %>%
+
+    ########################### 2. BULLETS #######################################
+
+  add_slide(layout = "Tablas", master = "Tema de Office") %>%
+    ph_with(value = enunciado,
+            ph_location_label(ph_label = "CuadroTexto 3")) %>%
+
+    ph_with(value = global_t1, cwidth = 100, cheight = 500,
+            location = ph_location_label(ph_label = "CuadroTexto 6")) %>%
+
+    ########################### 3. GRAFICO #######################################
+  add_slide(layout = "Grafico1", master = "Tema de Office") %>%
+    ph_with(value = grafico1,
+            ph_location_label(ph_label = "CuadroTexto 13")) %>%
+
+
+    ########################### 4. GRAFICO #######################################
+  add_slide(layout = "Grafico1", master = "Tema de Office") %>%
+    ph_with(value = grafico2,
+            ph_location_label(ph_label = "CuadroTexto 13")) %>%
+
+
+    ########################### 5. OTRAS TABLA #######################################
+
+  add_slide(layout = "Tablas_", master = "Tema de Office") %>%
+    ph_with(value = global_t2, cwidth = 9, cheight = 10,
+            location = ph_location_label(ph_label = "CuadroTexto 7")) %>%
+
+    ph_with(value = a, cwidth = 10, cheight = 10,
+            location = ph_location_label(ph_label = "CuadroTexto 6")) %>%
+
+    ph_with(value = b, cwidth = 10, cheight = 10,
+            location = ph_location_label(ph_label = "CuadroTexto 11")) %>%
+
+    ########################### 6. GRAFICO #######################################
+  add_slide(layout = "Grafico1", master = "Tema de Office") %>%
+    ph_with(value = grafico3,
+            ph_location_label(ph_label = "CuadroTexto 13")) %>%
+
+
+    #   ########################### 7. GRAFICO #######################################
+  add_slide(layout = "Grafico1", master = "Tema de Office") %>%
+    ph_with(value = grafico5,
+            ph_location_label(ph_label = "CuadroTexto 13")) %>%
+
+
+    ########################### 8. GRAFICO #######################################
+  add_slide(layout = "Grafico1", master = "Tema de Office") %>%
+    ph_with(value = grafico4,
+            ph_location_label(ph_label = "CuadroTexto 13")) %>%
+
+
+
+
+    ####ultimo paso
+    print(my_pres, target = "productos/Situacion_Internacional.pptx") %>%
+    invisible()
+
 }
