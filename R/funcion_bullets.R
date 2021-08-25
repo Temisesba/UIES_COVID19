@@ -712,7 +712,7 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
   enunciado3<-fpar(ftext("La letalidad global es de ", prop = texto_),
                    ftext(paste(letalidad,"."), prop = texto_n),fp_p = parrafo)
 
-  grafica<-ggsave("src/grafico1.png", width=17, height=10, units = "cm", dpi=900, scale = 1.8)
+  grafica<-ggsave("productos/grafico1.png", width=17, height=10, units = "cm", dpi=900, scale = 1.8)
 
   My_doc <- read_docx()
   My_doc %>%
@@ -727,7 +727,7 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
     body_add_fpar(enunciado2) %>%
     body_add_fpar(fpar(ftext(""))) %>%
     body_add_fpar(enunciado3) %>%
-    body_add_img(src = "src/grafico1.png", style = "centered", width=6.5, height=4) %>%
+    body_add_img(src = "productos/grafico1.png", style = "centered", width=6.5, height=4) %>%
     print(target = "productos/BULLETS_COVID-19.docx")
 
 }
