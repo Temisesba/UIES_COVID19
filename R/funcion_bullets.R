@@ -285,7 +285,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
           axis.text.x = element_text(size = 11,face = "bold"),
           axis.text.y = element_text(size = 11,face = "bold"),
           legend.position = "none")+
-    scale_y_continuous(labels = scales::comma, limits = c(0, max(situacion_mapa1$Casos_acumulados)+5000000))+
+    scale_y_continuous(labels = scales::comma, limits = c(0, max(situacion_14$Casos_acumulados)+500000))+
     geom_text(data = situacion_14 ,
               aes(x=Region_OMS,
                   y = Casos_nuevos, label=paste(prettyNum(Casos_nuevos,big.mark = ","), "")),
@@ -315,7 +315,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
           axis.text.x = element_text(size = 11,face = "bold"),
           axis.text.y = element_text(size = 11,face = "bold"),
           legend.position = "none")+
-    scale_y_continuous(labels = scales::comma, limits = c(0,80000000))+
+    scale_y_continuous(labels = scales::comma, limits = c(0,max(situacion_mapa1$Casos_acumulados)+5000000))+
     geom_text(data = situacion_mapa1 ,
               aes(x=Region_OMS,
                   y = Casos_acumulados, label=prettyNum(Casos_acumulados,big.mark = ",")),
@@ -413,6 +413,8 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
 
   #####ppt y word#####
   generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
+
+  bullet_word_V2(grafico1, situacion, fecha_de_trabajo)
 
   return(list(global_t1, global_t2, grafico1, grafico2, grafico3, grafico4,
                grafico5,bullets, a, b))
@@ -626,3 +628,108 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
     invisible()
 
 }
+
+
+##generar WORD#####
+bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
+
+  if(!dir.exists("productos")){
+    dir.create("productos")
+  }else{
+    print("Directorio existente")
+  }
+
+  library(tidyverse)
+  library(officer)
+  library(magrittr)
+  fecha_de_trabajo<-(fecha_de_trabajo)
+
+  Sys.setlocale("LC_TIME", "es_ES")
+  Fecha <-toupper(as.character(fecha_de_trabajo,format="%d %B %Y"))
+  Fecha_min <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
+
+  #Cargamos el documento de la OMS
+  situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
+                        encoding = "UTF-8") %>%
+    rename(Date_reported = 1)
+
+
+  #Realizamos los cáluclos para los casos y defunciones acumulados, por semana, día y letalidad.
+  Casos_acumulados<-(situacion %>%
+                       filter(Date_reported==fecha_de_trabajo) %>%
+                       summarise(Cumulative_cases=sum(Cumulative_cases)))$Cumulative_cases
+  Casos_acumulados1<-prettyNum(Casos_acumulados,big.mark=",",scientific=FALSE)
+
+
+  Casos_nuevos<-(situacion %>%
+                   filter(Date_reported==fecha_de_trabajo) %>%
+                   summarise(New_cases=sum(New_cases)))$New_cases
+  Casos_nuevos<-prettyNum(Casos_nuevos,big.mark=",",scientific=FALSE)
+
+
+  Defunciones_acumuladas<-(situacion %>%
+                             filter(Date_reported==fecha_de_trabajo) %>%
+                             summarise(Cumulative_deaths=sum(Cumulative_deaths)))$Cumulative_deaths
+  Defunciones_acumuladas1<-prettyNum(Defunciones_acumuladas,big.mark=",",scientific=FALSE)
+
+
+  Defunciones_nuevas<-prettyNum((situacion %>%
+                                   filter(Date_reported==fecha_de_trabajo) %>%
+                                   summarise(New_deaths=sum(New_deaths)))$New_deaths,big.mark=",",scientific=FALSE )
+
+
+  letalidad<- paste0(round((Defunciones_acumuladas/Casos_acumulados)*100,1),"%")
+
+
+  ultimas_24<-situacion %>%
+    mutate(Fecha=as.Date(Date_reported)) %>%
+    filter(Fecha==fecha_de_trabajo) %>%
+    summarise( Casos_nuevos= sum(New_cases),
+               Defunciones_nuevas = sum(New_deaths))
+
+
+  #####Creamos documento en WORD
+
+  texto_n <- fp_text(font.size = 11, font.family = "Montserrat Bold")
+  texto_ <- fp_text(font.size = 11, font.family = "Montserrat")
+  parrafo <- fp_par(text.align = "justify")
+  parrafo2 <- fp_par(text.align = "center")
+
+  enunciado1<-fpar(ftext("Al día ", prop = texto_),
+                   ftext(Fecha_min, prop = texto_n),
+                   ftext(" a nivel mundial, se han reportado ", prop = texto_),
+                   ftext(paste0(Casos_acumulados1," casos confirmados "), prop = texto_n),
+                   ftext(paste0("(",Casos_nuevos," casos nuevos) y "), prop = texto_),
+                   ftext(paste0(Defunciones_acumuladas1," defunciones "), prop = texto_n),
+                   ftext(paste0("(",Defunciones_nuevas," nuevas defunciones)."), prop = texto_),fp_p = parrafo)
+
+  enunciado2<-fpar(ftext(paste("En las últimas 24 horas se reportaron",
+                               prettyNum(ultimas_24$Casos_nuevos, big.mark = ","),
+                               "casos y",
+                               prettyNum(ultimas_24$Defunciones_nuevas, big.mark = ","),
+                               "defunciones a nivel global."), prop = texto_),fp_p = parrafo)
+
+  enunciado3<-fpar(ftext("La letalidad global es de ", prop = texto_),
+                   ftext(paste(letalidad,"."), prop = texto_n),fp_p = parrafo)
+
+  grafica<-ggsave("src/grafico1.png", width=17, height=10, units = "cm", dpi=900, scale = 1.8)
+
+  My_doc <- read_docx()
+  My_doc %>%
+    body_add_fpar(fpar(ftext("SECCIÓN INTERNACIONAL", prop = texto_n), fp_p = parrafo2)) %>%
+    body_add_fpar(fpar(ftext(""))) %>%
+    body_add_fpar(fpar(ftext("COVID-19", prop = texto_n), fp_p = parrafo2)) %>%
+    body_add_fpar(fpar(ftext(""))) %>%
+    body_add_fpar(fpar(ftext(Fecha, prop = texto_n), fp_p = parrafo2)) %>%
+    body_add_fpar(fpar(ftext(""))) %>%
+    body_add_fpar(enunciado1) %>%
+    body_add_fpar(fpar(ftext("")))%>%
+    body_add_fpar(enunciado2) %>%
+    body_add_fpar(fpar(ftext(""))) %>%
+    body_add_fpar(enunciado3) %>%
+    body_add_img(src = "src/grafico1.png", style = "centered", width=6.5, height=4) %>%
+    print(target = "productos/BULLETS_COVID-19.docx")
+
+}
+
+
