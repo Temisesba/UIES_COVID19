@@ -15,7 +15,9 @@ pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
 
 if(OMS[2]>=237){
 
-  DATOS<-graficas_tablas(fecha_de_trabajo,OMS[1],OMS[3])
+  invisible(capture.output(DATOS<-graficas_tablas(fecha_de_trabajo,OMS[1],OMS[3])))
+
+
 
   return(DATOS)
   }
