@@ -4,7 +4,7 @@
 incidencias_siete_dias<-function(fecha_de_trabajo){
   fecha_de_trabajo<-fecha_de_trabajo
 
-  library(tidyverse)
+  pacman::p_load(tidyverse)
 
   #Cargamos la base de datos de la OMS
   situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",

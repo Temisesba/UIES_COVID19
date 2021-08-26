@@ -42,14 +42,8 @@ reporte_de_situacion<-function(fecha_de_trabajo){ ####
 
 
 graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
-  library(ggthemes)
-  library(tidyverse)
-  library(data.table)
-  library(extrafont)
-  library(showtext)
-  library(lubridate)
-  library(magrittr)
-  library(flextable)
+  pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
+          magrittr, flextable)
   Sys.setlocale("LC_TIME", "es_ES")
   Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
 
@@ -520,10 +514,8 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
     print("Directorio existente")
   }
   fecha_de_trabajo<-fecha_de_trabajo
-  library(flextable)
-  library(officer)
-  library(magrittr)
-  library(tidyverse)
+
+  pacman::p_load(flextable, officer, magrittr, tidyverse)
 
   #DISTRIBUCIÓN Y TIPO DE TITULO
   Titulo <- ph_location_type(type = "title")
@@ -639,9 +631,7 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
     print("Directorio existente")
   }
 
-  library(tidyverse)
-  library(officer)
-  library(magrittr)
+  pacman::p_load(tidyverse, officer, magrittr)
   fecha_de_trabajo<-(fecha_de_trabajo)
 
   Sys.setlocale("LC_TIME", "es_ES")

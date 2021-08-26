@@ -3,9 +3,8 @@
 
 pandas <- function(fecha_de_trabajo) {
   fecha_de_trabajo<-fecha_de_trabajo
-  library(tidyverse)
-  library(lubridate)
-  library(data.table)
+
+  pacman::p_load(tidyverse, lubridate, data.table)
   Sys.setlocale("LC_TIME", "es_ES")
   Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
 

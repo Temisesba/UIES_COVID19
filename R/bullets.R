@@ -4,14 +4,8 @@
 bullets<-function(fecha_de_trabajo){
   fecha_de_trabajo<-(fecha_de_trabajo)
 
-  library(ggthemes)
-  library(tidyverse)
-  library(data.table)
-  library(extrafont)
-  library(showtext)
-  library(lubridate)
-  library(magrittr)
-  library(flextable)
+pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
+             magrittr, flextable)
 
 
 
