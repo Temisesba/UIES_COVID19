@@ -285,7 +285,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
           axis.text.x = element_text(size = 11,face = "bold"),
           axis.text.y = element_text(size = 11,face = "bold"),
           legend.position = "none")+
-    scale_y_continuous(labels = scales::comma, limits = c(0, max(situacion_14$Casos_acumulados)+500000))+
+    scale_y_continuous(labels = scales::comma, limits = c(0, max(situacion_14$Casos_nuevos)+500000))+
     geom_text(data = situacion_14 ,
               aes(x=Region_OMS,
                   y = Casos_nuevos, label=paste(prettyNum(Casos_nuevos,big.mark = ","), "")),
@@ -552,7 +552,7 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
   #                                            font.family = "Montserrat"))))
 
 
-  ########################## 1. PORTADA ######################################
+  ########################## 1. PORTADA
   my_pres <- add_slide(my_pres,
                        layout = "Titulo",
                        master = "Tema de Office") %>%
@@ -568,7 +568,7 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
     # ph_with(value = "aaa",
     #         ph_location_label(ph_label = "CuadroTexto 13")) %>%
 
-    ########################### 2. BULLETS #######################################
+    ########################### 2. BULLETS
 
   add_slide(layout = "Tablas", master = "Tema de Office") %>%
     ph_with(value = enunciado,
@@ -577,19 +577,19 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
     ph_with(value = global_t1, cwidth = 100, cheight = 500,
             location = ph_location_label(ph_label = "CuadroTexto 6")) %>%
 
-    ########################### 3. GRAFICO #######################################
+    ########################### 3. GRAFICO
   add_slide(layout = "Grafico1", master = "Tema de Office") %>%
     ph_with(value = grafico1,
             ph_location_label(ph_label = "CuadroTexto 13")) %>%
 
 
-    ########################### 4. GRAFICO #######################################
+    ########################### 4. GRAFICO
   add_slide(layout = "Grafico1", master = "Tema de Office") %>%
     ph_with(value = grafico2,
             ph_location_label(ph_label = "CuadroTexto 13")) %>%
 
 
-    ########################### 5. OTRAS TABLA #######################################
+    ########################### 5. OTRAS TABLA
 
   add_slide(layout = "Tablas_", master = "Tema de Office") %>%
     ph_with(value = global_t2, cwidth = 9, cheight = 10,
@@ -601,19 +601,19 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
     ph_with(value = b, cwidth = 10, cheight = 10,
             location = ph_location_label(ph_label = "CuadroTexto 11")) %>%
 
-    ########################### 6. GRAFICO #######################################
+    ########################### 6. GRAFICO
   add_slide(layout = "Grafico1", master = "Tema de Office") %>%
     ph_with(value = grafico3,
             ph_location_label(ph_label = "CuadroTexto 13")) %>%
 
 
-    #   ########################### 7. GRAFICO #######################################
+    #   ########################### 7. GRAFICO
   add_slide(layout = "Grafico1", master = "Tema de Office") %>%
     ph_with(value = grafico5,
             ph_location_label(ph_label = "CuadroTexto 13")) %>%
 
 
-    ########################### 8. GRAFICO #######################################
+    ########################### 8. GRAFICO
   add_slide(layout = "Grafico1", master = "Tema de Office") %>%
     ph_with(value = grafico4,
             ph_location_label(ph_label = "CuadroTexto 13")) %>%
