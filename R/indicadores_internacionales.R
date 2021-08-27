@@ -135,7 +135,8 @@ defunciones<-head(defunciones, 15)
 ##Se agregan la rutas de las imagenes de las banderas# falta poner crear carpeta de bandera###
 
 banderasc<-unique(casos$code)
-banc<-banderasc[-(1)]
+#banc<-banderasc[-(1)]#####
+banc<-banderasc
 banc
 
 for (i in 1:length(banc)) {
