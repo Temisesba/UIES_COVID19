@@ -3,4 +3,5 @@
 export(Promedios_moviles)
 export(bullets)
 export(incidencias_siete_dias)
+export(indicadores)
 export(pandas)
