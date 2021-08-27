@@ -106,10 +106,10 @@ Semana_previa<-siete_dias %>%
 
 #####Unimos ambas semanas y hacemos los cálculos necesarios para obtener los porcentajes requeridos
 completo<-merge(Ultima_semana,Semana_previa, by = "Pais") %>%
-  mutate(porcentaje_casos = paste(round((Casos_nuevos_1/sum(Casos_nuevos_1))*100,1),"%")) %>%
-  mutate(porcentaje_cambio_casos = paste(round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1),"%")) %>%
-  mutate(porcentaje_defunciones = paste(round((Defunciones_nuevas_1/sum(Defunciones_nuevas_1))*100,1),"%")) %>%
-  mutate(porcentaje_cambio_defunciones = paste(round(((Defunciones_nuevas_1-Defunciones_nuevas_2)/Defunciones_nuevas_2)*100,1),"%"))
+  mutate(porcentaje_casos = paste0(round((Casos_nuevos_1/sum(Casos_nuevos_1))*100,1),"%")) %>%
+  mutate(porcentaje_cambio_casos = paste0(round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1),"%")) %>%
+  mutate(porcentaje_defunciones = paste0(round((Defunciones_nuevas_1/sum(Defunciones_nuevas_1))*100,1),"%")) %>%
+  mutate(porcentaje_cambio_defunciones = paste0(round(((Defunciones_nuevas_1-Defunciones_nuevas_2)/Defunciones_nuevas_2)*100,1),"%"))
 
 ######Dividimos en dos dataframe uno de casos y uno de defunciones cada uno se ordena en orden descendente por número
 #de casos o de defunciones nuevas, se agrega el número de posición
@@ -146,7 +146,7 @@ for (i in 1:length(banc)) {
 casos$code <- paste0("banderas/",casos$code,".png")
 
 banderasd<-unique(defunciones$code)
-band<-banderasd[-(1)]
+#band<-banderasd[-(1)]
 band
 
 for (i in 1:length(band)) {
@@ -263,8 +263,8 @@ tabla.casos <-tabla_casos %>%
                     bandera="País",
                     plot = "Casos nuevos",
                     Casos_nuevos_1="No. Casos en los últimos 7 días",
-                    porcentaje_casos="%",
-                    porcentaje_cambio_casos="% cambio respecto a los 7 días previos")
+                    porcentaje_casos="% del total mundial",
+                    porcentaje_cambio_casos="% de cambio respecto a los 7 días previos")
 
 
 tabla.casos
@@ -297,8 +297,8 @@ tabla.defunciones <- tabla_defunciones %>%
                     bandera="País",
                     plot = "Defunciones nuevas",
                     Defunciones_nuevas_1="No. Defunciones en los últimos 7 días",
-                    porcentaje_defunciones="%",
-                    porcentaje_cambio_defunciones="% cambio respecto a los 7 días previos") %>%
+                    porcentaje_defunciones="% del total mundial",
+                    porcentaje_cambio_defunciones="% de cambio respecto a los 7 días previos") %>%
   #fit_to_width (max_width , inc =  1L)
   #autofit(add_w =  50 , add_h =  0 , part =  c ( "all" ))
   width(j=c(6), width=2) %>%
@@ -334,6 +334,7 @@ print(ppt, target = "productos/indicadores_internacional.pptx")
 #alternativa: pero solo guarda tabla sin imagenes
 #save_as_pptx ( tabla.casos , tabla.defunciones,  path  =  "dir/temis.pptx" )
 
+print("Ya estan listos los indicadores internacionales")
 
 }
 
