@@ -406,7 +406,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   b<-(b)
 
   #####ppt y word#####
-  generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
+  #generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
 
   bullet_word_V2(grafico1, situacion, fecha_de_trabajo)
 
