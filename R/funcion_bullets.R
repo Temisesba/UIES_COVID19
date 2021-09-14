@@ -521,7 +521,7 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
   Titulo <- ph_location_type(type = "title")
   subTitulo <- ph_location_type(type = "subTitle")
 
-  download.file("https://github.com/Temisesba/P-blico/raw/main/Plantilla.pptx", "productos/Plantilla.pptx")
+  #download.file("https://github.com/Temisesba/P-blico/raw/main/Plantilla.pptx", "productos/Plantilla.pptx")
 
   my_pres <- read_pptx("productos/Plantilla.pptx")
 
