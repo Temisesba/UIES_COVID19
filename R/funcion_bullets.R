@@ -700,7 +700,7 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
                                "defunciones a nivel global."), prop = texto_),fp_p = parrafo)
 
   enunciado3<-fpar(ftext("La letalidad global es de ", prop = texto_),
-                   ftext(paste(letalidad,"."), prop = texto_n),fp_p = parrafo)
+                   ftext(paste0(letalidad,"."), prop = texto_n),fp_p = parrafo)
 
   grafica<-ggsave("productos/grafico1.png", grafico1, width=17, height=10, units = "cm", dpi=900, scale = 1.8)
 
