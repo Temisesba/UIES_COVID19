@@ -198,7 +198,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
              stat = "identity")+
     scale_fill_manual(values = colores_fact )+
 
-    labs(title = paste("Casos diarios por regiones de la OMS",Fecha,"."),
+    labs(title = paste0("Casos diarios por regiones de la OMS ",Fecha,"."),
          fill = "Regiones OMS",
          x = "Fecha de reporte",
          y = "Número de casos confirmados",
