@@ -24,7 +24,7 @@ reporte_de_situacion<-function(fecha_de_trabajo){ ####
            Region_OMS = recode(Region_OMS,
                                "AFRO" = "África",
                                "AMRO" = "América",
-                               "EMRO" = "Mediterraneo Oriental",
+                               "EMRO" = "Mediterráneo Oriental",
                                "EURO"="Europa",
                                "SEARO" = "Asia Sudoriental",
                                "WPRO" = "Pacífico Occidental",
@@ -53,7 +53,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   regiones_fact <- c("América",
                      "Europa",
                      "Asia Sudoriental",
-                     "Mediterraneo Oriental",
+                     "Mediterráneo Oriental",
                      "África",
                      "Pacífico Occidental" )
 
@@ -61,7 +61,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   colores_fact <- c("América" = "#8a1339",
                     "Europa" = "#164569",
                     "Asia Sudoriental"="#4d3565",
-                    "Mediterraneo Oriental" ="#3f7433",
+                    "Mediterráneo Oriental" ="#3f7433",
                     "África"="#7db76f",
                     "Pacífico Occidental" ="#a37c4b")
 
@@ -109,7 +109,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
                        "total" = "Total",
                        "AFRO" = "África",
                        "AMRO" = "América",
-                       "EMRO" = "Mediterraneo Oriental",
+                       "EMRO" = "Mediterráneo Oriental",
                        "EURO"="Europa",
                        "SEARO" = "Asia Sudoriental",
                        "WPRO" = "Pacífico Occidental")) %>%
@@ -198,7 +198,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
              stat = "identity")+
     scale_fill_manual(values = colores_fact )+
 
-    labs(title = paste0("Casos diarios por regiones de la OMS ",Fecha,"."),
+    labs(title = paste0("Casos diarios por regiones de la OMS ",Fecha),
          fill = "Regiones OMS",
          x = "Fecha de reporte",
          y = "Número de casos confirmados",
