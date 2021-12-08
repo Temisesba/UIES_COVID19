@@ -668,7 +668,7 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
                                    summarise(New_deaths=sum(New_deaths)))$New_deaths,big.mark=",",scientific=FALSE )
 
 
-  letalidad<- paste0(round((Defunciones_acumuladas/Casos_acumulados)*100,1),"%")
+  letalidad<- paste0(round((Defunciones_acumuladas/Casos_acumulados)*100,1)," %")
 
 
   ultimas_24<-situacion %>%
