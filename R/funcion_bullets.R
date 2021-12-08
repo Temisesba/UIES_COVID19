@@ -452,7 +452,7 @@ bullet<-function(situacion, fecha_de_trabajo){
                                    summarise(New_deaths=sum(New_deaths)))$New_deaths,big.mark=",",scientific=FALSE )
 
 
-  letalidad<- paste0(round((Defunciones_acumuladas/Casos_acumulados)*100,1),"%")
+  letalidad<- paste0(round((Defunciones_acumuladas/Casos_acumulados)*100,1)," %")
 
 
   ultimas_24<-situacion %>%
@@ -718,7 +718,7 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
     body_add_fpar(fpar(ftext(""))) %>%
     body_add_fpar(enunciado3) %>%
     body_add_img(src = "productos/grafico1.png", style = "centered", width=6.5, height=4) %>%
-    print(target = "productos/BULLETS_COVID-19.docx")
+    print(target = paste0("productos/BULLETS_COVID-19_",format(Sys.Date(), "%d-%m-%Y"),".docx"))
 
 }
 
