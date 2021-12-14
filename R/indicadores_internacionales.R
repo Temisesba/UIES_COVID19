@@ -3,6 +3,7 @@
 
 indicadores<-function(fecha_de_trabajo){
 
+
 pacman::p_load(tidyverse, flextable, ftExtra, webshot, emo, countrycode, officer,
                magrittr)
 
@@ -26,7 +27,7 @@ Sys.setlocale("LC_TIME", "es_ES")
 
 #Cargamos la base de datos de la OMS y los paises en español y los unimos
 situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
-                      encoding = "UTF-8") %>% rename(Clave=2)
+                      encoding = "UTF-8") %>% rename( Date_reported = 1, Clave=2)
 
 pais_esp<-read.csv("https://raw.githubusercontent.com/Temisesba/P-blico/main/sabana_poblacion_bd.csv",
                    encoding = "UTF-8") %>%
