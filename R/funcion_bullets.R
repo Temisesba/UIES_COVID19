@@ -406,7 +406,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   b<-(b)
 
   #####ppt y word#####
-  #generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
+  generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
 
   bullet_word_V2(grafico1, situacion, fecha_de_trabajo)
 
@@ -521,9 +521,17 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
   Titulo <- ph_location_type(type = "title")
   subTitulo <- ph_location_type(type = "subTitle")
 
-  #download.file("https://github.com/Temisesba/P-blico/raw/main/Plantilla.pptx", "productos/Plantilla.pptx")
 
-  my_pres <- read_pptx("productos/Plantilla.pptx")
+  if( isTRUE(file.exists("productos/Plantilla.pptx")) ){
+
+    my_pres <- read_pptx("productos/Plantilla.pptx")
+
+  }else{
+
+    download.file("https://github.com/Temisesba/P-blico/raw/main/Plantilla.pptx", "productos/Plantilla.pptx")
+    my_pres <- read_pptx("productos/Plantilla.pptx")
+
+  }
 
   layout_summary(my_pres)
 

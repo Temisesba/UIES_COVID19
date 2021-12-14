@@ -147,7 +147,7 @@ casos$code <- paste0("banderas/",casos$code,".png")
 
 banderasd<-unique(defunciones$code)
 #band<-banderasd[-(1)]
-band
+band<- banderasd
 
 for (i in 1:length(band)) {
   download.file(paste0("https://flagcdn.com/w320/",band[i],".png"), paste0("banderas/",band[i],".png"))
@@ -178,7 +178,7 @@ curvas<-situacion %>%
 #         axis.title.y=element_blank())
 
 m<-curvas %>%
-  mutate(plot = map(data, ~ ggplot(data = .x) +
+  mutate(plot = map2(data, Pais, ~ ggplot(data = .x) +
                       geom_bar(aes(x=Date_reported, y=Casos_nuevos), fill="#a37c4b", stat = "identity")+
                       geom_vline(aes(xintercept=as.character(.x[which.max(.x$Casos_nuevos),1])),
                                  size=0.7, linetype = "solid", color="red")+
@@ -189,7 +189,7 @@ m<-curvas %>%
                             axis.title.y=element_blank())))
 
 n<-curvas %>%
-  mutate(plot = map(data, ~ ggplot(data = .x) +
+  mutate(plot = map2(data,Pais, ~ ggplot(data = .x) +
                       geom_bar(aes(x=Date_reported, y=Defunciones_nuevas), fill="#9E2B49", stat = "identity")+
                       geom_vline(aes(xintercept=as.character(.x[which.max(.x$Defunciones_nuevas),1])),
                                  size=0.7, linetype = "solid", color="red")+
