@@ -3,37 +3,56 @@
 
 indicadores<-function(fecha_de_trabajo){
 
+  #Paquetes requeridos adicionales
+  #devtools::install_github("rensa/ggflags")
+  #devtools::install_github("hadley/emo")
+  webshot::install_phantomjs()
 
-pacman::p_load(tidyverse, flextable, ftExtra, webshot, emo, countrycode, officer,
+  if(!require("devtools")) install.packages("devtools")
+  if(!require("pacman")) install.packages("pacman")
+  if(!require("ggflags")) devtools::install_github("rensa/ggflags")
+  if(!require("emo")) devtools::install_github("hadley/emo")
+
+
+  #Cargamos la fecha y corregimos el formato de tiempo a español
+  fecha_de_trabajo<-(fecha_de_trabajo)
+  Sys.setlocale("LC_TIME", "es_ES")
+
+
+  #Cargamos los paquetes a utilizar
+  pacman::p_load(tidyverse, flextable, ftExtra, webshot, emo, countrycode, officer,
                magrittr)
 
+  #Indetificamos el directorio dónde se crearán los productos
   if(!dir.exists("productos")){
     dir.create("productos")
   }else{
     print("Directorio existente")
   }
 
-  if(!dir.exists("banderas")){
-    dir.create("banderas")
+  if(!dir.exists("bin/banderas")){
+    dir.create("bin/banderas")
   }else{
     print("Directorio existente")
   }
 
-# webshot::install_phantomjs()
-#devtools::install_github("rensa/ggflags")
-#devtools::install_github("hadley/emo")
-fecha_de_trabajo<-(fecha_de_trabajo)
-Sys.setlocale("LC_TIME", "es_ES")
 
-#Cargamos la base de datos de la OMS y los paises en español y los unimos
-situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
-                      encoding = "UTF-8") %>% rename( Date_reported = 1, Clave=2)
+  situacion<-  merge(read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
+                              encoding = "UTF-8") %>% rename( Date_reported = 1, Clave=2),
+                     read.csv("https://raw.githubusercontent.com/Temisesba/P-blico/main/sabana_poblacion_bd.csv",
+                              encoding = "UTF-8") %>%
+                       select(Pais_esp,Clave=Codigo_pais), by = "Clave")
 
-pais_esp<-read.csv("https://raw.githubusercontent.com/Temisesba/P-blico/main/sabana_poblacion_bd.csv",
-                   encoding = "UTF-8") %>%
-  select(Pais_esp,Clave=Codigo_pais)
-
-situacion<-merge(situacion, pais_esp, by = "Clave")
+# #Cargamos la base de datos de la OMS y los paises en español y los unimos
+# situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
+#                       encoding = "UTF-8") %>% rename( Date_reported = 1, Clave=2)
+#
+#
+# pais_esp<-read.csv("https://raw.githubusercontent.com/Temisesba/P-blico/main/sabana_poblacion_bd.csv",
+#                    encoding = "UTF-8") %>%
+#   select(Pais_esp,Clave=Codigo_pais)
+#
+# situacion<-merge(situacion, pais_esp, by = "Clave")
 
 #Renombramos y recodificamos todo el DataFrame, renombramos variables
 
@@ -73,14 +92,17 @@ siete_dias<-situacion%>%
                          "Central_African_Republic"="Central_African_Republic", "Côte_d’Ivoire"="Cote_d_Ivoire",
                          "Falkland_Islands_(Malvinas)"="falkland_islands","Guinea-Bissau"="Guinea_Bissau",
                          "Sint_Eustatius"="smile", "Saba"="smile")) %>%
-  mutate(bandera = map_chr(Country, emo::ji))
+  mutate(bandera = map_chr(Country, emo::ji)) %>%
+  mutate(code = tolower(countrycode(Country, origin = 'country.name', destination = 'iso2c')))
+
+
 
 # https://github.com/hadley/emo/tree/master/data
 # a=data.frame(ji_name[3727:4239])
 # a$paises=rownames(a)
 
-#agregar codigo de dos digitos de país
-siete_dias$code<-tolower(countrycode(siete_dias$Country,origin = 'country.name', destination = 'iso2c'))
+#agregar codigo de dos digitos de país (se colocó arriba en el mutate)
+#siete_dias$code<-tolower( countrycode(siete_dias$Country,origin = 'country.name', destination = 'iso2c') )
 
 ##ciclofor para todos####
 
@@ -96,19 +118,26 @@ siete_dias$code<-tolower(countrycode(siete_dias$Country,origin = 'country.name',
 
 ######Filtramos últimas dos semanas
 Ultima_semana<-siete_dias %>%
-  filter(Fecha>fecha_de_trabajo-7) %>%
+  filter( Fecha>fecha_de_trabajo-7) %>%
   group_by(bandera, Pais, code) %>%
-  summarise(Casos_nuevos_1=sum(Casos_nuevos), Defunciones_nuevas_1=sum(Defunciones_nuevas))
+  summarise(Casos_nuevos_1=sum(Casos_nuevos),
+            Defunciones_nuevas_1=sum(Defunciones_nuevas))
 
 Semana_previa<-siete_dias %>%
-  filter(Fecha >= (fecha_de_trabajo-13) & Fecha <= fecha_de_trabajo-7) %>%
+  filter(Fecha >= (fecha_de_trabajo-13) &
+           Fecha <= fecha_de_trabajo-7) %>%
   group_by(Pais) %>%
-  summarise(Casos_nuevos_2=sum(Casos_nuevos), Defunciones_nuevas_2=sum(Defunciones_nuevas))
+  summarise(Casos_nuevos_2=sum(Casos_nuevos),
+            Defunciones_nuevas_2=sum(Defunciones_nuevas))
 
 #####Unimos ambas semanas y hacemos los cálculos necesarios para obtener los porcentajes requeridos
 completo<-merge(Ultima_semana,Semana_previa, by = "Pais") %>%
   mutate(porcentaje_casos = paste0(round((Casos_nuevos_1/sum(Casos_nuevos_1))*100,1),"%")) %>%
   mutate(porcentaje_cambio_casos = paste0(round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1),"%")) %>%
+
+  #Cambio numerico
+  mutate(porcentaje_cambio = round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1))  %>%
+
   mutate(porcentaje_defunciones = paste0(round((Defunciones_nuevas_1/sum(Defunciones_nuevas_1))*100,1),"%")) %>%
   mutate(porcentaje_cambio_defunciones = paste0(round(((Defunciones_nuevas_1-Defunciones_nuevas_2)/Defunciones_nuevas_2)*100,1),"%"))
 
@@ -124,7 +153,7 @@ defunciones$Posicion<-1:(length(unique(casos$Pais)))
 
 ####### Se convierten casos y defunciones a formato con comas divisoras y se corta a los primeros 15 datos
 casos <- casos %>%
-  select(Posicion, bandera, Pais, Casos_nuevos_1, porcentaje_casos, porcentaje_cambio_casos, code) %>%
+  select(Posicion, bandera, Pais, Casos_nuevos_1, porcentaje_casos, porcentaje_cambio, porcentaje_cambio_casos, code) %>%
   mutate(Casos_nuevos_1 = prettyNum(Casos_nuevos_1, big.mark = ","),)
 casos<-head(casos, 15)
 
@@ -133,30 +162,35 @@ defunciones <- defunciones %>%
   mutate(Defunciones_nuevas_1 = prettyNum(Defunciones_nuevas_1, big.mark = ","),)
 defunciones<-head(defunciones, 15)
 
-##Se agregan la rutas de las imagenes de las banderas# falta poner crear carpeta de bandera###
-
 banderasc<-unique(casos$code)
-#banc<-banderasc[-(1)]#####
-banc<-banderasc
-banc
 
-for (i in 1:length(banc)) {
-  download.file(paste0("https://flagcdn.com/w320/",banc[i],".png"), paste0("banderas/",banc[i],".png"))
+for (i in 1:length(banderasc)) {
+
+  if( !file.exists(paste0("bin/banderas/",banderasc[i], ".png")) ){
+    download.file(paste0("https://flagcdn.com/w320/",banderasc[i],".png"), paste0("bin/banderas/",banderasc[i],".png"))
+  }
+
 }
 
-casos$code <- paste0("banderas/",casos$code,".png")
+casos$code <- paste0("bin/banderas/",casos$code,".png")
 
 banderasd<-unique(defunciones$code)
-#band<-banderasd[-(1)]
-band<- banderasd
 
-for (i in 1:length(band)) {
-  download.file(paste0("https://flagcdn.com/w320/",band[i],".png"), paste0("banderas/",band[i],".png"))
+for (i in 1:length(banderasd)) {
+
+  if( !file.exists(paste0("bin/banderas/",banderasd[i], ".png")) ){
+    download.file(paste0("https://flagcdn.com/w320/",banderasd[i],".png"), paste0("bin/banderas/",banderasd[i],".png"))
+  }
+
 }
 
-defunciones$code <- paste0("banderas/",defunciones$code,".png")
+defunciones$code <- paste0("bin/banderas/",defunciones$code,".png")
 
-fs::dir_tree("banderas/")
+
+
+
+#fs::dir_tree("bin/banderas/")
+
 
 ##############Se realiza el date frame con los casos nuevos de cada país por fecha
 ####con la función nest se crean una lista de dataframes de fecha y casos de cada país.
@@ -204,7 +238,7 @@ n<-curvas %>%
 #inicio donde viene el resto de la información para la tabla
 
 m <- left_join(casos, m, by=c("Pais")) %>%
-  select(Posicion=1, bandera=2, Pais=3, data=8, plot=9, Casos_nuevos_1=4, porcentaje_casos=5, porcentaje_cambio_casos=6, code=7)
+  select(Posicion=1, bandera=2, Pais=3, data=8, plot=9, Casos_nuevos_1=4, porcentaje_casos=5, porcentaje_cambio_casos=6, code=7, cambio = )
 
 n <- left_join(defunciones, n, by=c("Pais")) %>%
   select(Posicion=1, bandera=2, Pais= 3, data=8, plot=9, Defunciones_nuevas_1=4, porcentaje_defunciones=5, porcentaje_cambio_defunciones=6, code=7)
@@ -221,7 +255,7 @@ tabla_casos <- m %>%
   mk_par(
     j = "plot",
     value = as_paragraph(gg_chunk(value = plot, height = 0.7, width = 2)))
-tabla_casos
+#tabla_casos
 
 tabla_defunciones <- n %>%
   select(-data) %>%
@@ -229,13 +263,16 @@ tabla_defunciones <- n %>%
   mk_par(
     j = "plot",
     value = as_paragraph(gg_chunk(value = plot, height = 0.7, width = 2)))
-tabla_defunciones
+#tabla_defunciones
 
 #####Se cargan imagenes####
-download.file("https://github.com/Temisesba/P-blico/raw/main/arriba.png", "banderas/arriba.png")
-download.file("https://github.com/Temisesba/P-blico/raw/main/abajo.png", "banderas/abajo.png")
+download.file("https://github.com/Temisesba/P-blico/raw/main/arriba.png", "bin/banderas/arriba.png")
+download.file("https://github.com/Temisesba/P-blico/raw/main/abajo.png", "bin/banderas/abajo.png")
 ###########Se DA FORMATO Y DISEÑO AL FLEXTABLE
 #para dejar banderas de emojis unicamente se bloquea la fila 235
+
+
+#### Se crea la tabla con los casos
 
 tabla.casos <-tabla_casos %>%
   bg(i = 1, bg = "#2B614D", part = "header") %>%
@@ -268,9 +305,8 @@ tabla.casos <-tabla_casos %>%
                     porcentaje_cambio_casos="% de cambio respecto a los 7 días previos")
 
 
-tabla.casos
 
-
+#Se crea la tabla con las defunciones
 tabla.defunciones <- tabla_defunciones %>%
   bg(i = 1, bg = "#2B614D", part = "header") %>%
   color(i = 1, color = "white", part = "header") %>%
@@ -282,10 +318,13 @@ tabla.defunciones <- tabla_defunciones %>%
   fontsize(j=2, size = 40, part = "body") %>%  #tamaño de bandera cuando es emoji
   # compose(j=2, value = as_paragraph(as_image(src = code, width = .50, height = .35),
   #                                   " ", as_chunk(m$Pais))) %>%  #para que quede junto al nombre
+
   compose(j=2, value = as_paragraph(as_chunk(""), as_image(src = code, width = .50, height = .35))) %>% #bandera rectangular en su propia columna
   hline(part="all", border = officer::fp_border(color = "#2B614D", style = "solid", width = 3)) %>%
   color(i = ~ `porcentaje_cambio_defunciones` > 0.1, j=7, color = "red") %>%
   #autofit(add_w =  60 , add_h =  0 , part =  c ( "all" )) %>%
+
+  bg(j = 6, bg = "#D4C19C", part = "body") %>%
   bg(j = 8, bg = "#D4C19C", part = "body") %>%
   mk_par(i = ~ `porcentaje_cambio_defunciones` < 0.1, j=8,
          value = as_paragraph(as_chunk("")," ",
