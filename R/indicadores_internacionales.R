@@ -136,7 +136,7 @@ completo<-merge(Ultima_semana,Semana_previa, by = "Pais") %>%
   mutate(porcentaje_cambio_casos = paste0(round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1),"%")) %>%
 
   #Cambio numerico
-  mutate(porcentaje_cambio = round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1))  %>%
+  #mutate(porcentaje_cambio = round(((Casos_nuevos_1-Casos_nuevos_2)/Casos_nuevos_2)*100,1))  %>%
 
   mutate(porcentaje_defunciones = paste0(round((Defunciones_nuevas_1/sum(Defunciones_nuevas_1))*100,1),"%")) %>%
   mutate(porcentaje_cambio_defunciones = paste0(round(((Defunciones_nuevas_1-Defunciones_nuevas_2)/Defunciones_nuevas_2)*100,1),"%"))
@@ -153,7 +153,7 @@ defunciones$Posicion<-1:(length(unique(casos$Pais)))
 
 ####### Se convierten casos y defunciones a formato con comas divisoras y se corta a los primeros 15 datos
 casos <- casos %>%
-  select(Posicion, bandera, Pais, Casos_nuevos_1, porcentaje_casos, porcentaje_cambio, porcentaje_cambio_casos, code) %>%
+  select(Posicion, bandera, Pais, Casos_nuevos_1, porcentaje_casos, porcentaje_cambio_casos, code) %>%
   mutate(Casos_nuevos_1 = prettyNum(Casos_nuevos_1, big.mark = ","),)
 casos<-head(casos, 15)
 
@@ -258,8 +258,13 @@ tabla_casos <- m %>%
 #tabla_casos
 
 tabla_defunciones <- n %>%
+  mutate(cambio = as.numeric(gsub("%","",porcentaje_defunciones))) %>%
   select(-data) %>%
-  flextable() %>%
+  flextable(col_keys = c("Posicion", "bandera",
+                         "Pais", "plot",
+                         "Defunciones_nuevas_1", "porcentaje_defunciones",
+                         "porcentaje_cambio_defunciones",
+                         "code") ) %>%
   mk_par(
     j = "plot",
     value = as_paragraph(gg_chunk(value = plot, height = 0.7, width = 2)))
@@ -305,9 +310,28 @@ tabla.casos <-tabla_casos %>%
                     porcentaje_cambio_casos="% de cambio respecto a los 7 días previos")
 
 
+###############
+quantileNum <- 6
+a<-(n %>% mutate(cambio = as.numeric(gsub("%","",porcentaje_defunciones))) %>%
+      select(cambio) )$cambio
+
+probs <- seq(0, 1, length.out = quantileNum )
+bins <- quantile(a, probs, na.rm = TRUE, names = FALSE)
+
+while (length(unique(bins)) != length(bins)) {
+
+  quantileNum <- quantileNum - 1
+  probs <- seq(0, 1, length.out = quantileNum + 1)
+  bins <- quantile(a, probs, na.rm = TRUE, names = FALSE)
+
+}
+###########################
 
 #Se crea la tabla con las defunciones
 tabla.defunciones <- tabla_defunciones %>%
+
+
+
   bg(i = 1, bg = "#2B614D", part = "header") %>%
   color(i = 1, color = "white", part = "header") %>%
   bold(part = "all") %>%
@@ -324,7 +348,20 @@ tabla.defunciones <- tabla_defunciones %>%
   color(i = ~ `porcentaje_cambio_defunciones` > 0.1, j=7, color = "red") %>%
   #autofit(add_w =  60 , add_h =  0 , part =  c ( "all" )) %>%
 
-  bg(j = 6, bg = "#D4C19C", part = "body") %>%
+  #Cambiamos el color de la variable con la escala de color
+  #bg(i = ~ `cambio` >= 10, j=6, bg = "#F8696B" ) %>%
+  #bg(i = ~ (`cambio` >= 7 & `cambio` <= 10), j=6, bg = "#FDBE7C" ) %>%
+
+  bg(i = ~ (`cambio` >= bins[6]), j=6, bg = "#F8696B" ) %>%
+  bg(i = ~ (`cambio` >= bins[5] & `cambio` < bins[6]), j=6, bg = "#FDB47A" ) %>%
+  bg(i = ~ (`cambio` >= bins[4] & `cambio` < bins[5]), j=6, bg = "#FFDA81" ) %>%
+  bg(i = ~ (`cambio` >= bins[3] &  `cambio` < bins[4]), j=6, bg = "#F5E883" ) %>%
+  bg(i = ~ (`cambio` >= bins[2] & `cambio` < bins[3]), j=6, bg = "#B0D47F" ) %>%
+  bg(i = ~ (`cambio` >= bins[1] & `cambio` < bins[2] ), j=6, bg = "#63BE7B" ) %>%
+  #bg( j=`cambio`, bg = cor_color ) %>%
+
+
+
   bg(j = 8, bg = "#D4C19C", part = "body") %>%
   mk_par(i = ~ `porcentaje_cambio_defunciones` < 0.1, j=8,
          value = as_paragraph(as_chunk("")," ",
