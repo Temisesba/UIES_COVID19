@@ -725,3 +725,18 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
 }
 
 
+quantil_color <-function(x){
+  ############### CUANTILES DE COLOR #######
+  quantileNum <- 7
+  probs <- seq(0, 1, length.out = quantileNum )
+  bins <- quantile(x, probs, na.rm = TRUE, names = FALSE)
+
+  while (length(unique(bins)) != length(bins)) {
+
+    quantileNum <- quantileNum - 1
+    probs <- seq(0, 1, length.out = quantileNum + 1)
+    bins <- quantile(x, probs, na.rm = TRUE, names = FALSE)
+  }
+  return(bins)
+}
+

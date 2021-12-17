@@ -3,6 +3,7 @@
 
 indicadores<-function(fecha_de_trabajo){
 
+
   #Paquetes requeridos adicionales
   #devtools::install_github("rensa/ggflags")
   #devtools::install_github("hadley/emo")
@@ -164,6 +165,16 @@ defunciones<-head(defunciones, 15)
 
 banderasc<-unique(casos$code)
 
+
+#####Se cargan imagenes de arriba y abajo####
+if( (!file.exists("bin/banderas/arriba.png") | !file.exists("bin/banderas/abajo.png") ) ){
+
+  download.file("https://github.com/Temisesba/P-blico/raw/main/arriba.png", "bin/banderas/arriba.png")
+  download.file("https://github.com/Temisesba/P-blico/raw/main/abajo.png", "bin/banderas/abajo.png")
+
+}
+
+
 for (i in 1:length(banderasc)) {
 
   if( !file.exists(paste0("bin/banderas/",banderasc[i], ".png")) ){
@@ -185,9 +196,6 @@ for (i in 1:length(banderasd)) {
 }
 
 defunciones$code <- paste0("bin/banderas/",defunciones$code,".png")
-
-
-
 
 #fs::dir_tree("bin/banderas/")
 
@@ -243,19 +251,30 @@ m <- left_join(casos, m, by=c("Pais")) %>%
 n <- left_join(defunciones, n, by=c("Pais")) %>%
   select(Posicion=1, bandera=2, Pais= 3, data=8, plot=9, Defunciones_nuevas_1=4, porcentaje_defunciones=5, porcentaje_cambio_defunciones=6, code=7)
 
-#eliminar columna de bandera####
-# m$bandera<-NULL
-# n$bandera<-NULL
+
+
+#Obtenemos los vectores con los casos de la tabla
+porcentaje_def <-(n %>% mutate(cambio = as.numeric(gsub("%","",porcentaje_defunciones))) %>%
+                    select(cambio))$cambio
+
+porcentaje_casos <-(m %>% mutate(cambio = as.numeric(gsub("%","",porcentaje_casos))) %>%
+                      select(cambio))$cambio
+
 
 ####Se convierten las minigráficas y se da formato en flextable
 
 tabla_casos <- m %>%
+  mutate(cambio = as.numeric(gsub("%","",porcentaje_casos))) %>%
   select(-data) %>%
-  flextable() %>%
+  flextable(col_keys = c("Posicion", "bandera",
+                         "Pais", "plot",
+                         "Casos_nuevos_1", "porcentaje_casos",
+                         "porcentaje_cambio_casos",
+                         "code")) %>%
   mk_par(
     j = "plot",
     value = as_paragraph(gg_chunk(value = plot, height = 0.7, width = 2)))
-#tabla_casos
+
 
 tabla_defunciones <- n %>%
   mutate(cambio = as.numeric(gsub("%","",porcentaje_defunciones))) %>%
@@ -270,14 +289,14 @@ tabla_defunciones <- n %>%
     value = as_paragraph(gg_chunk(value = plot, height = 0.7, width = 2)))
 #tabla_defunciones
 
-#####Se cargan imagenes####
-download.file("https://github.com/Temisesba/P-blico/raw/main/arriba.png", "bin/banderas/arriba.png")
-download.file("https://github.com/Temisesba/P-blico/raw/main/abajo.png", "bin/banderas/abajo.png")
+
+
 ###########Se DA FORMATO Y DISEÑO AL FLEXTABLE
 #para dejar banderas de emojis unicamente se bloquea la fila 235
 
 
 #### Se crea la tabla con los casos
+bins<-quantil_color(porcentaje_casos)
 
 tabla.casos <-tabla_casos %>%
   bg(i = 1, bg = "#2B614D", part = "header") %>%
@@ -290,10 +309,21 @@ tabla.casos <-tabla_casos %>%
   fontsize(j=2, size = 40, part = "body") %>%  #tamaño de bandera cuando es emoji
   # compose(j=2, value = as_paragraph(as_image(src = code, width = .50, height = .35),
   #                                   " ", as_chunk(m$Pais))) %>%  #para que quede junto al nombre
-  compose(j=2, value = as_paragraph(as_chunk(""), as_image(src = code, width = .50, height = .35))) %>% #bandera rectangular en su propia columna
+
+  compose(j=2, value = as_paragraph(as_chunk(""),
+                                    as_image(src = code, width = .50, height = .35))) %>% #bandera rectangular en su propia columna
   hline(part="all", border = officer::fp_border(color = "#2B614D", style = "solid", width = 3)) %>%
   color(i = ~ `porcentaje_cambio_casos` > 0.1, j=7, color = "red") %>%
   autofit() %>%
+
+  bg(i = ~ (`cambio` >= bins[7]), j=6, bg = "#F8696B" ) %>%
+  bg(i = ~ (`cambio` >= bins[6] & `cambio` < bins[7]), j=6, bg = "#FB9F76" ) %>%
+  bg(i = ~ (`cambio` >= bins[5] & `cambio` < bins[6]), j=6, bg = "#FDBE7C" ) %>%
+  bg(i = ~ (`cambio` >= bins[4] & `cambio` < bins[5]), j=6, bg = "#FFDA81" ) %>%
+  bg(i = ~ (`cambio` >= bins[3] &  `cambio` < bins[4]), j=6, bg = "#F5E883" ) %>%
+  bg(i = ~ (`cambio` >= bins[2] & `cambio` < bins[3]), j=6, bg = "#B0D47F" ) %>%
+  bg(i = ~ (`cambio` >= bins[1] & `cambio` < bins[2] ), j=6, bg = "#63BE7B" ) %>%
+
   bg(j = 8, bg = "#D4C19C", part = "body") %>%
   mk_par(i = ~ `porcentaje_cambio_casos` < 0.1, j=8,
          value = as_paragraph(as_chunk("")," ",
@@ -306,32 +336,21 @@ tabla.casos <-tabla_casos %>%
                     bandera="País",
                     plot = "Casos nuevos",
                     Casos_nuevos_1="No. Casos en los últimos 7 días",
-                    porcentaje_casos="% del total mundial",
+                    porcentaje_casos="%",
                     porcentaje_cambio_casos="% de cambio respecto a los 7 días previos")
 
 
-###############
-quantileNum <- 6
-a<-(n %>% mutate(cambio = as.numeric(gsub("%","",porcentaje_defunciones))) %>%
-      select(cambio) )$cambio
 
-probs <- seq(0, 1, length.out = quantileNum )
-bins <- quantile(a, probs, na.rm = TRUE, names = FALSE)
 
-while (length(unique(bins)) != length(bins)) {
 
-  quantileNum <- quantileNum - 1
-  probs <- seq(0, 1, length.out = quantileNum + 1)
-  bins <- quantile(a, probs, na.rm = TRUE, names = FALSE)
 
-}
-###########################
+
+
+
+bins<-quantil_color(porcentaje_def)
 
 #Se crea la tabla con las defunciones
 tabla.defunciones <- tabla_defunciones %>%
-
-
-
   bg(i = 1, bg = "#2B614D", part = "header") %>%
   color(i = 1, color = "white", part = "header") %>%
   bold(part = "all") %>%
@@ -349,18 +368,17 @@ tabla.defunciones <- tabla_defunciones %>%
   #autofit(add_w =  60 , add_h =  0 , part =  c ( "all" )) %>%
 
   #Cambiamos el color de la variable con la escala de color
-  #bg(i = ~ `cambio` >= 10, j=6, bg = "#F8696B" ) %>%
-  #bg(i = ~ (`cambio` >= 7 & `cambio` <= 10), j=6, bg = "#FDBE7C" ) %>%
 
-  bg(i = ~ (`cambio` >= bins[6]), j=6, bg = "#F8696B" ) %>%
-  bg(i = ~ (`cambio` >= bins[5] & `cambio` < bins[6]), j=6, bg = "#FDB47A" ) %>%
+
+  bg(i = ~ (`cambio` >= bins[7]), j=6, bg = "#F8696B" ) %>%
+  bg(i = ~ (`cambio` >= bins[6] & `cambio` < bins[7]), j=6, bg = "#FB9F76" ) %>%
+  bg(i = ~ (`cambio` >= bins[5] & `cambio` < bins[6]), j=6, bg = "#FDBE7C" ) %>%
   bg(i = ~ (`cambio` >= bins[4] & `cambio` < bins[5]), j=6, bg = "#FFDA81" ) %>%
   bg(i = ~ (`cambio` >= bins[3] &  `cambio` < bins[4]), j=6, bg = "#F5E883" ) %>%
   bg(i = ~ (`cambio` >= bins[2] & `cambio` < bins[3]), j=6, bg = "#B0D47F" ) %>%
   bg(i = ~ (`cambio` >= bins[1] & `cambio` < bins[2] ), j=6, bg = "#63BE7B" ) %>%
+
   #bg( j=`cambio`, bg = cor_color ) %>%
-
-
 
   bg(j = 8, bg = "#D4C19C", part = "body") %>%
   mk_par(i = ~ `porcentaje_cambio_defunciones` < 0.1, j=8,
@@ -374,12 +392,14 @@ tabla.defunciones <- tabla_defunciones %>%
                     bandera="País",
                     plot = "Defunciones nuevas",
                     Defunciones_nuevas_1="No. Defunciones en los últimos 7 días",
-                    porcentaje_defunciones="% del total mundial",
+                    porcentaje_defunciones="%",
                     porcentaje_cambio_defunciones="% de cambio respecto a los 7 días previos") %>%
   #fit_to_width (max_width , inc =  1L)
   #autofit(add_w =  50 , add_h =  0 , part =  c ( "all" ))
   width(j=c(6), width=2) %>%
   width(j=c(7), width=2)
+
+
 
 #dim_pretty(tabla.defunciones)
 
@@ -413,5 +433,10 @@ print(ppt, target = "productos/indicadores_internacional.pptx")
 
 print("Ya estan listos los indicadores internacionales")
 
+
+
+
 }
+
+
 
