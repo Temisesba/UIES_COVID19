@@ -295,8 +295,52 @@ tabla_defunciones <- n %>%
 #para dejar banderas de emojis unicamente se bloquea la fila 235
 
 
+# quantil_color <-function(x){
+#   ############### CUANTILES DE COLOR #######
+#   quantileNum <- 7
+#   probs <- seq(0, 1, length.out = quantileNum )
+#   bins <- quantile(x, probs, na.rm = TRUE, names = FALSE)
+#
+#   while (length(unique(bins)) != length(bins)) {
+#
+#     quantileNum <- quantileNum - 1
+#     probs <- seq(0, 1, length.out = quantileNum + 1)
+#     bins <- quantile(x, probs, na.rm = TRUE, names = FALSE)
+#   }
+#   return(bins)
+# }
+#
+# bins<-quantil_color(porcentaje_casos)
+
+
+#################
+#Esto se hace hasta encontrar la forma de utilizar la función de arriba
+quantileNum <- 7
+probs <- seq(0, 1, length.out = quantileNum )
+bins_casos <- quantile(porcentaje_casos, probs, na.rm = TRUE, names = FALSE)
+bins_def <- quantile(porcentaje_def, probs, na.rm = TRUE, names = FALSE)
+
+while (length(unique(bins_casos)) != length(bins_casos)) {
+
+  quantileNum <- quantileNum - 1
+  probs <- seq(0, 1, length.out = quantileNum + 1)
+  bins_casos <- quantile(x, probs, na.rm = TRUE, names = FALSE)
+}
+
+while (length(unique(bins_def)) != length(bins_def)) {
+
+  quantileNum <- quantileNum - 1
+  probs <- seq(0, 1, length.out = quantileNum + 1)
+  bins_def <- quantile(x, probs, na.rm = TRUE, names = FALSE)
+}
+##############
+
 #### Se crea la tabla con los casos
-bins<-quantil_color(porcentaje_casos)
+casos_color1<-bins_casos[1]
+casos_color2 <- bins_casos[2]
+
+print(casos_color1)
+#casos_color2
 
 tabla.casos <-tabla_casos %>%
   bg(i = 1, bg = "#2B614D", part = "header") %>%
@@ -316,13 +360,15 @@ tabla.casos <-tabla_casos %>%
   color(i = ~ `porcentaje_cambio_casos` > 0.1, j=7, color = "red") %>%
   autofit() %>%
 
-  bg(i = ~ (`cambio` >= bins[7]), j=6, bg = "#F8696B" ) %>%
-  bg(i = ~ (`cambio` >= bins[6] & `cambio` < bins[7]), j=6, bg = "#FB9F76" ) %>%
-  bg(i = ~ (`cambio` >= bins[5] & `cambio` < bins[6]), j=6, bg = "#FDBE7C" ) %>%
-  bg(i = ~ (`cambio` >= bins[4] & `cambio` < bins[5]), j=6, bg = "#FFDA81" ) %>%
-  bg(i = ~ (`cambio` >= bins[3] &  `cambio` < bins[4]), j=6, bg = "#F5E883" ) %>%
-  bg(i = ~ (`cambio` >= bins[2] & `cambio` < bins[3]), j=6, bg = "#B0D47F" ) %>%
-  bg(i = ~ (`cambio` >= bins[1] & `cambio` < bins[2] ), j=6, bg = "#63BE7B" ) %>%
+  # bg(i = ~ (`cambio` >= bins_casos[7]), j=6, bg = "#F8696B" ) %>%
+  # bg(i = ~ (`cambio` >= bins_casos[6] & `cambio` < bins_casos[7]), j=6, bg = "#FB9F76" ) %>%
+  # bg(i = ~ (`cambio` >= bins_casos[5] & `cambio` < bins_casos[6]), j=6, bg = "#FDBE7C" ) %>%
+  # bg(i = ~ (`cambio` >= bins_casos[4] & `cambio` < bins_casos[5]), j=6, bg = "#FFDA81" ) %>%
+  # bg(i = ~ (`cambio` >= bins_casos[3] &  `cambio` < bins_casos[4]), j=6, bg = "#F5E883" ) %>%
+  # bg(i = ~ (`cambio` >= bins_casos[2] & `cambio` < bins_casos[3]), j=6, bg = "#B0D47F" ) %>%
+  #bg(i = ~ (`cambio` >= casos_color1 & `cambio` < casos_color2 ), j=6, bg = "#63BE7B" , part = "body") %>%
+  bg(i = ~ (`cambio` >= casos_color1 & `cambio` < casos_color2 ), j=6, bg = "#63BE7B" , part = "body") %>%
+
 
   bg(j = 8, bg = "#D4C19C", part = "body") %>%
   mk_par(i = ~ `porcentaje_cambio_casos` < 0.1, j=8,
@@ -339,99 +385,100 @@ tabla.casos <-tabla_casos %>%
                     porcentaje_casos="%",
                     porcentaje_cambio_casos="% de cambio respecto a los 7 días previos")
 
+print(tabla.casos)
 
 
 
 
 
 
-
-
-bins<-quantil_color(porcentaje_def)
-
-#Se crea la tabla con las defunciones
-tabla.defunciones <- tabla_defunciones %>%
-  bg(i = 1, bg = "#2B614D", part = "header") %>%
-  color(i = 1, color = "white", part = "header") %>%
-  bold(part = "all") %>%
-  align(align = "center", part = "all") %>%
-  font(fontname = "Montserrat", part = "all") %>%
-  fontsize(size = 20, part = "all") %>%
-  merge_at(i = 1, j=2:3, part = "header") %>%
-  fontsize(j=2, size = 40, part = "body") %>%  #tamaño de bandera cuando es emoji
-  # compose(j=2, value = as_paragraph(as_image(src = code, width = .50, height = .35),
-  #                                   " ", as_chunk(m$Pais))) %>%  #para que quede junto al nombre
-
-  compose(j=2, value = as_paragraph(as_chunk(""), as_image(src = code, width = .50, height = .35))) %>% #bandera rectangular en su propia columna
-  hline(part="all", border = officer::fp_border(color = "#2B614D", style = "solid", width = 3)) %>%
-  color(i = ~ `porcentaje_cambio_defunciones` > 0.1, j=7, color = "red") %>%
-  #autofit(add_w =  60 , add_h =  0 , part =  c ( "all" )) %>%
-
-  #Cambiamos el color de la variable con la escala de color
-
-
-  bg(i = ~ (`cambio` >= bins[7]), j=6, bg = "#F8696B" ) %>%
-  bg(i = ~ (`cambio` >= bins[6] & `cambio` < bins[7]), j=6, bg = "#FB9F76" ) %>%
-  bg(i = ~ (`cambio` >= bins[5] & `cambio` < bins[6]), j=6, bg = "#FDBE7C" ) %>%
-  bg(i = ~ (`cambio` >= bins[4] & `cambio` < bins[5]), j=6, bg = "#FFDA81" ) %>%
-  bg(i = ~ (`cambio` >= bins[3] &  `cambio` < bins[4]), j=6, bg = "#F5E883" ) %>%
-  bg(i = ~ (`cambio` >= bins[2] & `cambio` < bins[3]), j=6, bg = "#B0D47F" ) %>%
-  bg(i = ~ (`cambio` >= bins[1] & `cambio` < bins[2] ), j=6, bg = "#63BE7B" ) %>%
-
-  #bg( j=`cambio`, bg = cor_color ) %>%
-
-  bg(j = 8, bg = "#D4C19C", part = "body") %>%
-  mk_par(i = ~ `porcentaje_cambio_defunciones` < 0.1, j=8,
-         value = as_paragraph(as_chunk("")," ",
-                              as_image(src = "banderas/abajo.png", width = .30, height = .30)), part = "body") %>%
-  mk_par(i = ~ `porcentaje_cambio_defunciones` > 0.1, j=8,
-         value = as_paragraph(as_chunk("")," ",
-                              as_image(src = "banderas/arriba.png", width = .30, height = .30)), part = "body") %>%
-  merge_at(i = 1, j=7:8, part = "header") %>%
-  set_header_labels(Posicion="Posición",
-                    bandera="País",
-                    plot = "Defunciones nuevas",
-                    Defunciones_nuevas_1="No. Defunciones en los últimos 7 días",
-                    porcentaje_defunciones="%",
-                    porcentaje_cambio_defunciones="% de cambio respecto a los 7 días previos") %>%
-  #fit_to_width (max_width , inc =  1L)
-  #autofit(add_w =  50 , add_h =  0 , part =  c ( "all" ))
-  width(j=c(6), width=2) %>%
-  width(j=c(7), width=2)
-
-
-
-#dim_pretty(tabla.defunciones)
-
-tabla.defunciones
-tabla.casos
-
-save_as_image(tabla.casos, path="productos/casos.png", webshot = "webshot")
-save_as_image(tabla.defunciones, path="productos/defunciones.png", webshot = "webshot")
-
-
-####ppt####
-
-
-# my_pres <- read_pptx("Documents/GitHub/Situation-Report-Who/Pandas r/src/Plantilla.pptx")
-# add_slide(my_pres, layout = "Tablas_", master = "Tema de Office") %>%
-#   ph_with(value = tabla.defunciones,
-#           location = ph_location_label(ph_label = "CuadroTexto 6")) %>%
-#   print(my_pres, target = "Documents/GitHub/Situation-Report-Who/graficas dr Alessio/prueba.pptx")
-ppt <- read_pptx()
-layout_summary(ppt)
-layout_properties(ppt, layout = "Two Content", master = "Office Theme")
-ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme")
-#ppt <- ph_with(ppt, value = pba, location = ph_location(left = 3, top = 5))
-ppt <- ph_with(x = ppt, external_img("productos/casos.png"),
-               location = ph_location_left())
-ppt <- ph_with(x = ppt, external_img("productos/defunciones.png"),
-               location = ph_location_right())
-print(ppt, target = "productos/indicadores_internacional.pptx")
-#alternativa: pero solo guarda tabla sin imagenes
-#save_as_pptx ( tabla.casos , tabla.defunciones,  path  =  "dir/temis.pptx" )
-
-print("Ya estan listos los indicadores internacionales")
+#
+#
+# #bins<-quantil_color(porcentaje_def)
+#
+# #Se crea la tabla con las defunciones
+# tabla.defunciones <- tabla_defunciones %>%
+#   bg(i = 1, bg = "#2B614D", part = "header") %>%
+#   color(i = 1, color = "white", part = "header") %>%
+#   bold(part = "all") %>%
+#   align(align = "center", part = "all") %>%
+#   font(fontname = "Montserrat", part = "all") %>%
+#   fontsize(size = 20, part = "all") %>%
+#   merge_at(i = 1, j=2:3, part = "header") %>%
+#   fontsize(j=2, size = 40, part = "body") %>%  #tamaño de bandera cuando es emoji
+#   # compose(j=2, value = as_paragraph(as_image(src = code, width = .50, height = .35),
+#   #                                   " ", as_chunk(m$Pais))) %>%  #para que quede junto al nombre
+#
+#   compose(j=2, value = as_paragraph(as_chunk(""), as_image(src = code, width = .50, height = .35))) %>% #bandera rectangular en su propia columna
+#   hline(part="all", border = officer::fp_border(color = "#2B614D", style = "solid", width = 3)) %>%
+#   color(i = ~ `porcentaje_cambio_defunciones` > 0.1, j=7, color = "red") %>%
+#   #autofit(add_w =  60 , add_h =  0 , part =  c ( "all" )) %>%
+#
+#   #Cambiamos el color de la variable con la escala de color
+#
+#
+#   bg(i = ~ (`cambio` >= bins_def[7]), j=6, bg = "#F8696B" ) %>%
+#   bg(i = ~ (`cambio` >= bins_def[6] & `cambio` < bins_def[7]), j=6, bg = "#FB9F76" ) %>%
+#   bg(i = ~ (`cambio` >= bins_def[5] & `cambio` < bins_def[6]), j=6, bg = "#FDBE7C" ) %>%
+#   bg(i = ~ (`cambio` >= bins_def[4] & `cambio` < bins_def[5]), j=6, bg = "#FFDA81" ) %>%
+#   bg(i = ~ (`cambio` >= bins_def[3] &  `cambio` < bins_def[4]), j=6, bg = "#F5E883" ) %>%
+#   bg(i = ~ (`cambio` >= bins_def[2] & `cambio` < bins_def[3]), j=6, bg = "#B0D47F" ) %>%
+#   bg(i = ~ (`cambio` >= bins_def[1] & `cambio` < bins_def[2] ), j=6, bg = "#63BE7B" ) %>%
+#
+#   #bg( j=`cambio`, bg = cor_color ) %>%
+#
+#   bg(j = 8, bg = "#D4C19C", part = "body") %>%
+#   mk_par(i = ~ `porcentaje_cambio_defunciones` < 0.1, j=8,
+#          value = as_paragraph(as_chunk("")," ",
+#                               as_image(src = "banderas/abajo.png", width = .30, height = .30)), part = "body") %>%
+#   mk_par(i = ~ `porcentaje_cambio_defunciones` > 0.1, j=8,
+#          value = as_paragraph(as_chunk("")," ",
+#                               as_image(src = "banderas/arriba.png", width = .30, height = .30)), part = "body") %>%
+#   merge_at(i = 1, j=7:8, part = "header") %>%
+#   set_header_labels(Posicion="Posición",
+#                     bandera="País",
+#                     plot = "Defunciones nuevas",
+#                     Defunciones_nuevas_1="No. Defunciones en los últimos 7 días",
+#                     porcentaje_defunciones="%",
+#                     porcentaje_cambio_defunciones="% de cambio respecto a los 7 días previos") %>%
+#   #fit_to_width (max_width , inc =  1L)
+#   #autofit(add_w =  50 , add_h =  0 , part =  c ( "all" ))
+#   width(j=c(6), width=2) %>%
+#   width(j=c(7), width=2)
+#
+#
+#
+# #dim_pretty(tabla.defunciones)
+#
+# tabla.defunciones
+# tabla.casos
+#
+# save_as_image(tabla.casos, path="productos/casos.png", webshot = "webshot")
+# save_as_image(tabla.defunciones, path="productos/defunciones.png", webshot = "webshot")
+#
+#
+# ####ppt####
+#
+#
+# # my_pres <- read_pptx("Documents/GitHub/Situation-Report-Who/Pandas r/src/Plantilla.pptx")
+# # add_slide(my_pres, layout = "Tablas_", master = "Tema de Office") %>%
+# #   ph_with(value = tabla.defunciones,
+# #           location = ph_location_label(ph_label = "CuadroTexto 6")) %>%
+# #   print(my_pres, target = "Documents/GitHub/Situation-Report-Who/graficas dr Alessio/prueba.pptx")
+# ppt <- read_pptx()
+# layout_summary(ppt)
+# layout_properties(ppt, layout = "Two Content", master = "Office Theme")
+# ppt <- add_slide(ppt, layout = "Title and Content", master = "Office Theme")
+# #ppt <- ph_with(ppt, value = pba, location = ph_location(left = 3, top = 5))
+# ppt <- ph_with(x = ppt, external_img("productos/casos.png"),
+#                location = ph_location_left())
+# ppt <- ph_with(x = ppt, external_img("productos/defunciones.png"),
+#                location = ph_location_right())
+# print(ppt, target = "productos/indicadores_internacional.pptx")
+# #alternativa: pero solo guarda tabla sin imagenes
+# #save_as_pptx ( tabla.casos , tabla.defunciones,  path  =  "dir/temis.pptx" )
+#
+# print("Ya estan listos los indicadores internacionales")
 
 
 
