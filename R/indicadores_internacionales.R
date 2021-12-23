@@ -48,6 +48,14 @@ indicadores<-function(fecha_de_trabajo){
     print("Directorio existente")
   }
 
+
+  if(!dir.exists("bin")){
+    dir.create("bin")
+  }else{
+    print("Directorio existente")
+  }
+
+
   if(!dir.exists("bin/banderas")){
     dir.create("bin/banderas")
   }else{
@@ -395,8 +403,8 @@ indicadores<-function(fecha_de_trabajo){
     width(j=c(6), width=2) %>%
     width(j=c(7), width=2)
 
-  tabla.casos
-  tabla.defunciones
+  print(tabla.casos)
+  print(tabla.defunciones)
 
 #dim_pretty(tabla.defunciones)
 
