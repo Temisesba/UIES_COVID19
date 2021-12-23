@@ -2,6 +2,7 @@
 #' @export
 
 bullets<-function(fecha_de_trabajo){
+
   fecha_de_trabajo<-(fecha_de_trabajo)
 
 pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
