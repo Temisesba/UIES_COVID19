@@ -521,10 +521,17 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
   Titulo <- ph_location_type(type = "title")
   subTitulo <- ph_location_type(type = "subTitle")
 
+  if( !file.exists("bin/Plantilla.pptx") ){
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/Plantilla.pptx", "bin/Plantilla.pptx", mode = "wb")
+
+  }
 
 
 
   my_pres <- read_pptx("bin/Plantilla.pptx")
+
+
 
 
   layout_summary(my_pres)
