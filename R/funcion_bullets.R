@@ -513,6 +513,13 @@ generar_pptx_V2 <- function(bullets, grafico1, global_t1, grafico2, global_t2, g
   }else{
     print("Directorio existente")
   }
+
+  if(!dir.exists("bin")){
+    dir.create("bin")
+  }else{
+    print("Directorio existente")
+  }
+
   fecha_de_trabajo<-fecha_de_trabajo
 
   pacman::p_load(flextable, officer, magrittr, tidyverse)
