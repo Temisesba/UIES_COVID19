@@ -78,8 +78,22 @@ alertometro <- function(){
            "Liga de verificacion"= `Liga de verificación`) %>%
     mutate(color = recode(Verificacion,
                           "Ratificado" = "verde",
+                          "Ratificada" = "verde",
+                          "ratificado" = "verde",
+                          "ratificada" = "verde",
+
                           "Rectificado" = "rojo",
-                          "Pendiente" = "amarillo"))
+                          "Rectificada" = "rojo",
+                          "rectificado" = "rojo",
+                          "rectificada" = "rojo",
+
+                          "Pendiente" = "amarillo",
+                          "pendiente" = "amarillo",
+                          "Pendiente de verificación" = "amarillo",
+                          "pendiente de verificación" = "amarillo",
+                          "Pendiente de Verificacion" = "amarillo",
+                          "pendiente de verificacion" = "amarillo"
+                          ))
 
   #Obtenemos el número máximo de noticias
   max <-max(texto$Numero)
@@ -89,7 +103,7 @@ alertometro <- function(){
     mutate(direccion = rep(c("derecha", "izquierda"), 5)[1:max]) %>%
     unite("direccion_color", color:direccion, sep = "_", remove = FALSE) %>%
     select(-color,-direccion) %>%
-    mutate(direccion_inter = rep(c("right", "left"), 5)[1:max])
+    mutate(direccion_inter = rep(c("left", "right"), 5)[1:max])
 
   #Obtenemos las variables para las ligas de verificación y el número de noticias
   liga_verif<-paste(texto$`Liga de verificacion`, collapse = "\n")

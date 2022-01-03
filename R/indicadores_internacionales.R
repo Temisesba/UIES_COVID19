@@ -39,7 +39,7 @@ indicadores<-function(fecha_de_trabajo){
 
   #Cargamos los paquetes a utilizar
   pacman::p_load(tidyverse, flextable, ftExtra, webshot, emo, countrycode, officer,
-                 magrittr)
+                 magrittr, Rcpp)
 
   #Indetificamos el directorio dónde se crearán los productos
   if(!dir.exists("productos")){
