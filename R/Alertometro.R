@@ -15,11 +15,46 @@ alertometro <- function(){
     print("Directorio existente")
   }
 
+  if(!dir.exists("bin/imagenes")){
+    dir.create("bin/imagenes")
+  }else{
+    print("Directorio existente")
+  }
+
   if (!file.exists("bin/Alertometro_plantilla.pptx")) {
     download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/Alertometro_plantilla.pptx",
                   "bin/Alertometro_plantilla.pptx", mode = "wb")
     print("Plantilla lista")
   }
+
+  if (!file.exists( "bin/imagenes/amarillo_derecha.png") |
+      !file.exists("bin/imagenes/amarillo_izquierda.png" ) |
+      !file.exists("bin/imagenes/rojo_izquierda.png") |
+      !file.exists("bin/imagenes/rojo_derecha.png")|
+      !file.exists("bin/imagenes/verde_izquierda.png")|
+      !file.exists("bin/imagenes/verde_derecha.png")) {
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/imagenes/amarillo_derecha.png",
+                  "bin/imagenes/amarillo_derecha.png", mode = "wb")
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/imagenes/amarillo_izquierda.png",
+                  "bin/imagenes/amarillo_izquierda.png", mode = "wb")
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/imagenes/rojo_izquierda.png",
+                  "bin/imagenes/rojo_izquierda.png", mode = "wb")
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/imagenes/rojo_derecha.png",
+                  "bin/imagenes/rojo_derecha.png", mode = "wb")
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/imagenes/verde_izquierda.png",
+                  "bin/imagenes/verde_izquierda.png", mode = "wb")
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/imagenes/verde_derecha.png",
+                  "bin/imagenes/verde_derecha.png", mode = "wb")
+
+    print("Plantilla lista")
+  }
+
 
   pacman::p_load(tidyverse,flextable, ggplot2, ggrepel, webshot, officer, Hmisc,readxl )
 
@@ -54,7 +89,7 @@ alertometro <- function(){
     mutate(direccion = rep(c("derecha", "izquierda"), 5)[1:max]) %>%
     unite("direccion_color", color:direccion, sep = "_", remove = FALSE) %>%
     select(-color,-direccion) %>%
-    mutate(direccion_inter = rep(c("left", "right"), 5)[1:max])
+    mutate(direccion_inter = rep(c("right", "left"), 5)[1:max])
 
   #Obtenemos las variables para las ligas de verificación y el número de noticias
   liga_verif<-paste(texto$`Liga de verificacion`, collapse = "\n")
