@@ -15,9 +15,9 @@ alertometro <- function(){
     print("Directorio existente")
   }
 
-  if(!file.exists("bin/Alertometro_plantilla.pptx")){
-
-    download.file("https://github.com/Temisesba/UIES_COVID19/blob/main/bin/Alertometro_plantilla.pptx", "bin/Alertometro_plantilla.pptx", mode = "wb")
+  if (!file.exists("bin/Alertometro_plantilla.pptx")) {
+    download.file("https://github.com/Temisesba/UIES_COVID19/raw/main/bin/Alertometro_plantilla.pptx",
+                  "bin/Alertometro_plantilla.pptx", mode = "wb")
     print("Plantilla lista")
   }
 
