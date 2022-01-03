@@ -9,6 +9,18 @@ alertometro <- function(){
     print("Directorio existente")
   }
 
+  if(!dir.exists("bin")){
+    dir.create("bin")
+  }else{
+    print("Directorio existente")
+  }
+
+  if(!file.exists("bin/Alertometro_plantilla.pptx")){
+
+    download.file("https://github.com/Temisesba/UIES_COVID19/blob/main/bin/Alertometro_plantilla.pptx", "bin/Alertometro_plantilla.pptx", mode = "wb")
+    print("Plantilla lista")
+  }
+
   pacman::p_load(tidyverse,flextable, ggplot2, ggrepel, webshot, officer, Hmisc,readxl )
 
   #Colocamos las propiedades para el formato de salida de la fecha
