@@ -18,7 +18,6 @@ if(OMS[2]>=237){
 
   invisible(capture.output(DATOS<-graficas_tablas(fecha_de_trabajo,OMS[1],OMS[3])))
 
-
   print(paste("La OMS ya actualizó",OMS[2],"países. Ya estan listos los bullets"))
   return(DATOS)
 } else {

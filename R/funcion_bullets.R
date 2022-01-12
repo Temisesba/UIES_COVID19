@@ -186,6 +186,13 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
 
   #Creamos el gráfico1####
   #Creamos el gráfico con los casos de cada día
+
+  #Obtenemos el mayor numero de nuevos casos
+  dia_maximo <- max((situacion_mapa %>%
+                       group_by(Fecha) %>%
+                       summarise(Casos_nuevos = sum(Casos_nuevos)))$Casos_nuevos)
+
+
   #Eliminamos los casos negativos
   grafico1 <- situacion_mapa %>%
     filter(Casos_nuevos > 0) %>%
@@ -206,7 +213,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
     theme_minimal()+
 
     scale_x_date(labels=scales::date_format("%d-%b-%y"),
-                 date_breaks = "3 weeks")+
+                 date_breaks = "4 weeks")+
 
     theme(text=element_text(size=16,
                             family="Montserrat", ),
@@ -216,7 +223,13 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
           plot.title = element_text(hjust = 0.5, face = "bold"),
           legend.title = element_text(face = "bold"))+
 
-    scale_y_continuous(labels = scales::comma)
+    scale_y_continuous(labels = scales::comma, limits = c(0, redondea_millones(dia_maximo)), breaks = seq(0, redondea_millones(dia_maximo), by = 500000) )
+
+
+
+
+
+
 
   ########Grafico2####
   situacion_mapa1<-situacion_mapa %>%
@@ -502,6 +515,12 @@ bullet<-function(situacion, fecha_de_trabajo){
               letalidad=letalidad,
               c=c,
               enunciado=enunciado))
+}
+
+redondea_millones <- function(x, millones=c(1,2,3,4,5,6,8,10)) {
+
+  10^floor(log10(x)) * millones[[which(x <= 10^floor(log10(x)) * millones)[[1]]]]
+
 }
 
 
