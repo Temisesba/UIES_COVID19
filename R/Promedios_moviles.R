@@ -3,14 +3,17 @@
 
 Promedios_moviles<-function(fecha_de_trabajo){
   fecha_de_trabajo<-fecha_de_trabajo
-  pacman::p_load(tidyverse, lubridate, data.table, plyr)
+
+  if(!require("plyr")) install.packages("plyr")
+
+  pacman::p_load(tidyverse, lubridate, data.table)
   Sys.setlocale("LC_TIME", "es_ES")
   Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
   poblacion<-read.csv("https://github.com/Temisesba/P-blico/raw/main/sabana_poblacion_bd.csv", encoding = "UTF-8")
 
   situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
-                        encoding = "UTF-8") %>%
-    rename(Date_reported =1)
+                        encoding = "UTF-8", check.names = T) %>%
+    select(Date_reported =1, 2:8)
 
   #####correr desde aqui
   situacion_PM<-situacion%>%
@@ -100,4 +103,3 @@ Promedios_moviles<-function(fecha_de_trabajo){
   return(print("Ya estan listos los promedios moviles."))
 
 }
-

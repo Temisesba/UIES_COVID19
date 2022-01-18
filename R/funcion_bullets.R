@@ -216,14 +216,16 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
                  date_breaks = "4 weeks")+
 
     theme(text=element_text(size=16,
-                            family="Montserrat", ),
+                            family="Montserrat"
+                            ),
           axis.text.x = element_text(angle=90,
                                      hjust = 1,
                                      size = 11),
           plot.title = element_text(hjust = 0.5, face = "bold"),
           legend.title = element_text(face = "bold"))+
 
-    scale_y_continuous(labels = scales::comma, limits = c(0, redondea_millones(dia_maximo)), breaks = seq(0, redondea_millones(dia_maximo), by = 500000) )
+    scale_y_continuous(labels = scales::comma, limits = c(0, redondea_millones(dia_maximo)),
+                       breaks = seq(0, redondea_millones(dia_maximo), by = 500000) )
 
 
 
