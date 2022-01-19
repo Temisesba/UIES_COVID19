@@ -5,8 +5,8 @@ Promedios_moviles<-function(fecha_de_trabajo){
   fecha_de_trabajo<-fecha_de_trabajo
 
   if(!require("plyr")) install.packages("plyr")
-
   pacman::p_load(tidyverse, lubridate, data.table)
+
   Sys.setlocale("LC_TIME", "es_ES")
   Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
   poblacion<-read.csv("https://github.com/Temisesba/P-blico/raw/main/sabana_poblacion_bd.csv", encoding = "UTF-8")
