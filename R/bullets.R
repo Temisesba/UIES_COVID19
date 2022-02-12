@@ -3,6 +3,7 @@
 
 bullets<-function(fecha_de_trabajo){
 
+  #fecha_de_trabajo <- Sys.Date()
   fecha_de_trabajo<-(fecha_de_trabajo)
 
   #### INSTALACIÓN DE LA FUENTE MONTSERRAT AUTOMÁTICAMENTE ####

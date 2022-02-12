@@ -44,6 +44,11 @@ reporte_de_situacion<-function(fecha_de_trabajo){ ####
 graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
           magrittr, flextable)
+
+  #situacion <-OMS[1]
+  #situacion_mapa<-OMS[3]
+
+
   Sys.setlocale("LC_TIME", "es_ES")
   Fecha <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
 
@@ -194,7 +199,8 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
 
 
   #Eliminamos los casos negativos
-  grafico1 <- situacion_mapa %>%
+  grafico1 <-
+    situacion_mapa %>%
     filter(Casos_nuevos > 0) %>%
 
     ggplot()+
@@ -216,16 +222,19 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
                  date_breaks = "4 weeks")+
 
     theme(text=element_text(size=16,
-                            family="Montserrat"
-                            ),
+                            family="Montserrat" ),
           axis.text.x = element_text(angle=90,
                                      hjust = 1,
                                      size = 11),
           plot.title = element_text(hjust = 0.5, face = "bold"),
           legend.title = element_text(face = "bold"))+
 
-    scale_y_continuous(labels = scales::comma, limits = c(0, redondea_millones(dia_maximo)),
-                       breaks = seq(0, redondea_millones(dia_maximo), by = 500000) )
+    # scale_y_continuous(labels = scales::comma, limits = c(0, redondea_millones(dia_maximo)),
+    #                    breaks = seq(0, redondea_millones(dia_maximo), by = 500000) )
+    scale_y_continuous(labels = scales::comma,
+                       limits = c(0, (dia_maximo)),
+                       breaks = seq(0, (dia_maximo), by = 1000000)
+                       )
 
 
 
