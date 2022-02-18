@@ -109,9 +109,15 @@ indicadores<-function(fecha_de_trabajo){
                            "Central_African_Republic"="Central_African_Republic", "Côte_d’Ivoire"="Cote_d_Ivoire",
                            "Falkland_Islands_(Malvinas)"="falkland_islands","Guinea-Bissau"="Guinea_Bissau",
                            "Sint_Eustatius"="smile", "Saba"="smile")) %>%
+    #filter(Country == "South_Korea") %>%
     mutate(bandera = map_chr(Country, emo::ji)) %>%
-    mutate(code = tolower(countrycode(Country, origin = 'country.name', destination = 'iso2c')))
+    mutate(code = tolower(countrycode(Country, origin = 'country.name', destination = 'iso2c'))) %>%
 
+    #Surcorea es uno de esos países que tienen problema con su código de país
+    #Tenemos que volver a recodificarlo quizá sea mejor aplicar which para no usar el mutate
+    #o un ifelse (pendiente)
+    mutate(Country = recode(Country, "South_Korea" =  "The Republic of Korea")) %>%
+    mutate(code = tolower(countrycode(Country, origin = 'country.name', destination = 'iso2c')))
 
 
   # https://github.com/hadley/emo/tree/master/data
@@ -180,6 +186,9 @@ indicadores<-function(fecha_de_trabajo){
 
   #Vector único con las banderas de los 15 países con casos
   banderasc<-unique(casos$code)
+
+  #Removemos los NA si es que hubiera
+  banderasc<-banderasc[!is.na(banderasc) ]
 
 
   #####Se cargan imagenes de arriba y abajo####
