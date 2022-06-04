@@ -87,6 +87,7 @@ Promedios_moviles<-function(fecha_de_trabajo){
   }
 
   PM<-plyr::rbind.fill(promedios_moviles) %>%
+    #filter(!duplicated(.)) %>%
     rename(Fecha=1)
 
 
