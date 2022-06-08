@@ -1,5 +1,5 @@
 reporte_de_situacion<-function(fecha_de_trabajo){ ####
- fecha_de_trabajo<-fecha_de_trabajo
+  #fecha_de_trabajo <- Sys.Date()-3
   #Cargamos la base de datos de la OMS
   situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
                         encoding = "UTF-8") %>%
@@ -259,7 +259,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
                  fill = Region_OMS),
              stat = "identity")+
     scale_fill_manual(values = colores_fact )+
-    labs(title = expression(paste(bold("Gráfico 1.")," Distribución de casos acumulados de COVID-19 por SARS-CoV-2 por regiones de la OMS.")),
+    labs(title = expression(paste(bold("Gráfico 1.")," Distribución de casos acumulados de COVID-19 por SARS-CoV-2 por regiones de la OMS")),
          fill = "Regiones OMS",
          x = "",
          y = "")+
@@ -361,7 +361,7 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   grafico4<-letalidad %>%
     ggplot()+
     geom_line(aes(x=Date_reported, y=letalidad, color="#C0322B", group=1), size=1.5)+
-    labs(title = expression(paste(bold("Gráfico 2."), " Tasa de letalidad* global de COVID-19 por SARS-CoV-2.")),
+    labs(title = expression(paste(bold("Gráfico 2."), " Tasa de letalidad* global de COVID-19 por SARS-CoV-2")),
          x = "",
          y = "Letalidad")+
     theme_hc()+
@@ -433,6 +433,8 @@ graficas_tablas<-function(fecha_de_trabajo, situacion,situacion_mapa){
   generar_pptx_V2(bullets, grafico1, global_t1, grafico2, global_t2, grafico3, grafico4, a, b, fecha_de_trabajo, grafico5)
 
   bullet_word_V2(grafico1, situacion, fecha_de_trabajo)
+
+  #bullets_Completo()
 
   return(list(global_t1, global_t2, grafico1, grafico2, grafico3, grafico4,
                grafico5,bullets, a, b))
@@ -728,8 +730,11 @@ bullet_word_V2<-function(grafico1, situacion, fecha_de_trabajo){
 
   texto_n <- fp_text(font.size = 11, font.family = "Montserrat Bold")
   texto_ <- fp_text(font.size = 11, font.family = "Montserrat")
+  texto_subt <- fp_text(font.size = 6, font.family = "Montserrat")
+
   parrafo <- fp_par(text.align = "justify")
   parrafo2 <- fp_par(text.align = "center")
+  subtitulo <- fp_par(text.align = "left")
 
   enunciado1<-fpar(ftext("Al día ", prop = texto_),
                    ftext(Fecha_min, prop = texto_n),
