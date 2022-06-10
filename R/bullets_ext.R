@@ -1,4 +1,5 @@
 
+source("R/funcion_bullets.R")
 pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
                magrittr, flextable, officer, stringi)
 
@@ -37,7 +38,8 @@ colores_fact <- c("América" = "#8a1339",
 grafico2<-
   ggplot()+
   geom_bar(data = situacion_mapa1,
-           aes(x= factor(Region_OMS, levels=situacion_mapa1$Region_OMS),
+           aes(x= factor(Region_OMS,
+                         levels=Region_OMS),
                y = Casos_acumulados,
                fill = Region_OMS),
            stat = "identity")+
@@ -105,8 +107,41 @@ grafico4 <-situacion %>%
         legend.position = "none")
 
 
-
+###############################################################################
 ####### Tabla Resumen por Región #####
+# global_t2 <- situacion %>%
+#   select(Fecha=1,
+#          Region_OMS=WHO_region,
+#          Casos_acumulados=Cumulative_cases,
+#          Casos_nuevos=New_cases,
+#          Defunciones_acumuladas=Cumulative_deaths,
+#          Defunciones_nuevas=New_deaths) %>%
+#   mutate(Fecha=as.Date(Fecha)) %>%
+#   filter(Fecha==fecha_de_trabajo) %>%
+#   group_by(Region_OMS) %>%
+#   summarise(Casos_nuevos=sum(Casos_nuevos)) %>%
+#   spread(Region_OMS, Casos_nuevos) %>%
+#   rename("África"=1,
+#          "América"=2,
+#          "Mediterráneo Oriental"=3,
+#          "Europa"=4,
+#          "Asia Sudoriental"=6,
+#          "Pacífico Occidental"=7,
+#          "Other"=5) %>%
+#   mutate(`Pacífico Occidental` = Other + `Pacífico Occidental`) %>%
+#   select(-Other) %>%
+#   mutate(total= rowSums(.[,1:6])) %>%
+#   gather(Region, Casos_nuevos , 1:7) %>%
+#   arrange(desc(Casos_nuevos)) %>%
+#   mutate(pct_dist_casos = round(Casos_nuevos/max(Casos_nuevos)*100,1),
+#          Casos_nuevos = prettyNum(Casos_nuevos, big.mark = ","),
+#          pct_dist_casos = paste0(pct_dist_casos,"%")) %>%
+#   rename("Región OMS"=1,
+#          "Casos en las últimas 24 h" = 2,
+#          "% de distribución de casos en las últimas 24 h"=3) %>%
+#   mutate(`Región OMS` = recode(`Región OMS`, "total" = "Región OMS"))
+###############################################################################
+
 global_t2 <- situacion %>%
   select(Fecha=1,
          Region_OMS=WHO_region,
@@ -117,29 +152,7 @@ global_t2 <- situacion %>%
   mutate(Fecha=as.Date(Fecha)) %>%
   filter(Fecha==fecha_de_trabajo) %>%
   group_by(Region_OMS) %>%
-  summarise(Casos_nuevos=sum(Casos_nuevos)) %>%
-  spread(Region_OMS, Casos_nuevos) %>%
-  rename("África"=1,
-         "América"=2,
-         "Mediterráneo Oriental"=3,
-         "Europa"=4,
-         "Asia Sudoriental"=6,
-         "Pacífico Occidental"=7,
-         "Other"=5) %>%
-  mutate(`Pacífico Occidental` = Other + `Pacífico Occidental`) %>%
-  select(-Other) %>%
-  mutate(total= rowSums(.[,1:6])) %>%
-  gather(Region, Casos_nuevos , 1:7) %>%
-  arrange(desc(Casos_nuevos)) %>%
-  mutate(pct_dist_casos = round(Casos_nuevos/max(Casos_nuevos)*100,1),
-         Casos_nuevos = prettyNum(Casos_nuevos, big.mark = ","),
-         pct_dist_casos = paste0(pct_dist_casos,"%")) %>%
-  rename("Región OMS"=1,
-         "Casos en las últimas 24 h" = 2,
-         "% de distribución de casos en las últimas 24 h"=3) %>%
-  mutate(`Región OMS` = recode(`Región OMS`, "total" = "Región OMS"))
-
-
+  summarise(Casos_nuevos=sum(Casos_nuevos))
 
 global_t2 <- data.frame(t(global_t2[-1])) %>%
   select("África"=1,
@@ -196,13 +209,13 @@ global_t2_<- flextable(head(global_t2)) %>%
 
   border(part = "all", border = officer::fp_border(color = "black", style = "solid", width = 2.5) ) %>%
   bold(part ="all") %>%
-  font(fontname = "Montserrat", part = "all")
+  font(fontname = "Montserrat", part = "all") %>%
+  fontsize(size = 11, part = "all")
 
 #fit_to_width(width(global_t2_, width = 4), max_width = 6)
 
 
 
-width(global_t2_, width = 2.3)
 
 # set_table_properties(global_t2, width = 1, layout = "fixed" )
 #
@@ -228,15 +241,46 @@ Fecha <-toupper(as.character(fecha_de_trabajo,format="%d %B %Y"))
 Fecha_min <-as.character(fecha_de_trabajo,format="%A, %d de %B de %Y")
 
 #Cargamos el documento de la OMS
-situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
-                      encoding = "UTF-8") %>%
-  rename(Date_reported = 1)
+# situacion <- read.csv("https://covid19.who.int/WHO-COVID-19-global-data.csv",
+#                       encoding = "UTF-8") %>%
+#   rename(Date_reported = 1)
 
 bullet <- bullet(situacion, fecha_de_trabajo)
 
 longitud<-length((situacion_mapa %>%
                     select(Fecha,Pais_ing ) %>%
                     filter(Fecha == fecha_de_trabajo))$Pais_ing)
+
+
+tabla_a<-bullet[-8]
+a<-data.frame(Reduce(rbind, tabla_a))
+
+
+a <- flextable((a)) %>%
+  delete_part (part  =  "header" ) %>%
+  bg(i = c(1,3,4,6), bg = "#dda95f", part = "all") %>%
+  color(i = c(1,3,4,6), color = "white", part = "all") %>%
+  bold(part = "all") %>%
+  align(align = "center", part = "all") %>%
+  font(fontname = "Montserrat", part = "all") %>%
+  border(border = officer::fp_border(color = "#dda95f", style = "solid", width = 1) ) %>%
+  fontsize(size = 12, part = "all")
+
+
+
+tabla_b<-bullet[-c(1,2,3,4,5,8)]
+b<-data.frame(Reduce(rbind, tabla_b))
+b <- flextable((b)) %>%
+  delete_part (part  =  "header" ) %>%
+  bg(i = 1, bg = "#dda95f", part = "all") %>%
+  color(i = 1, color = "white", part = "all") %>%
+  bold(part = "all") %>%
+  align(align = "center", part = "all") %>%
+  font(fontname = "Montserrat", part = "all") %>%
+  border(border = officer::fp_border(color = "#dda95f", style = "solid", width = 1) ) %>%
+  fontsize(size = 10, part = "all")
+
+
 
 #Realizamos los cáluclos para los casos y defunciones acumulados, por semana, día y letalidad.
 Casos_acumulados<-(situacion %>%
@@ -337,22 +381,17 @@ enunciado1_8 <- fpar(ftext(paste("*Tasa de letalidad: Personas que enfermaron y 
 
 
 
-#grafica<-ggsave("productos/grafico1.png", grafico1, width=17, height=10, units = "cm", dpi=900, scale = 1.8)
+#estilo_flex<- fit_to_width(width(global_t2_, width = 8), max_width = 8, inc = 1)
+estilo_flex <- width(global_t2_, width = 1)
 
+ggsave("productos/grafico_barra.png", grafico2, width=17, height=10, units = "cm", dpi=900, scale = 1.8)
+ggsave("productos/grafico_letalidad.png", grafico4, width=17, height=10, units = "cm", dpi=900, scale = 1.8)
 
-estilo_flex<- fit_to_width(width(global_t2_, width = 8), max_width = 7, inc = 3)
+#width(a, width = 3)
 
-fit_to_width(width(global_t2_, width = 8), max_width = 7, inc = 3)
+save_as_image(width(a, width = 3), path = "productos/tabla_a.png")
+save_as_image(width(b, width = 1), path = "productos/tabla_b.png")
 
-
-save_as_image(width(a, width = 2.3), path = "productos/tabla_casos.png")
-
-#ggsave("productos/tabla_casos.png", width(a, width = 2.3), width=3, height=3, units = "cm", dpi=900, scale = 1.8)
-
-
-#flextable::height()
-
-#My_doc <- read_docx()
 read_docx() %>%
   body_add_fpar(fpar(ftext(paste("INFORMACIÓN CORONAVIRUS",
                                  str_to_upper(format(as.Date(fecha_de_trabajo),
@@ -369,38 +408,40 @@ read_docx() %>%
 
   body_add_fpar(fpar(ftext(""))) %>%
 
-  body_add_gg(., value = grafico2, style = "centered", width=15.59, height=9) %>%
 
-  body_add_img(src = "productos/tabla_casos.png", style = "centered", width=1.5, height=1.5) %>%
+  #body_add_gg( value = grafico2, style = "centered", width=15.59, height=9) %>%
+  #body_add_gg( value = grafico2, style = "centered", width=6.5, height=4) %>%
+
+  body_add_img(src = "productos/grafico_barra.png", style = "centered", width=6.5, height=4) %>%
 
   body_add_fpar(enunciado1_2) %>%
+
+  body_add_fpar(fpar(ftext(""))) %>%
 
   body_add_fpar(enunciado1_3) %>%
 
   body_add_fpar(enunciado1_4) %>%
 
-
   body_add_fpar(enunciado1_5) %>%
 
   body_add_fpar(enunciado1_6) %>%
 
-  body_add_gg(., value = grafico4, style = "centered", width=15.59, height=9) %>%
+  #body_add_gg(., value = grafico4, style = "centered", width=15.59, height=9) %>%
+
+  body_add_img(src = "productos/grafico_letalidad.png", style = "centered", width=6.5, height=4) %>%
 
   body_add_fpar(enunciado1_7) %>%
 
+
+  body_add_fpar(fpar(ftext(""))) %>%
   body_add_fpar(enunciado1_8) %>%
 
+  #body_add_flextable(., value = width(a, width = 3) , align = "center") %>%
+  body_add_img(src = "productos/tabla_a.png", style = "centered", width=1.3, height=1) %>%
 
+  body_add_fpar(fpar(ftext(""))) %>%
+  body_add_img(src = "productos/tabla_b.png", style = "centered", width=1, height=1) %>%
 
-
-  #body_add_flextable()
-
-  # body_add_fpar(enunciado1_1) %>%
-  # body_add_fpar(fpar(ftext("")))%>%
-  # body_add_fpar(enunciado2) %>%
-  # body_add_fpar(fpar(ftext(""))) %>%
-  # body_add_fpar(enunciado3) %>%
-  # body_add_img(src = "productos/grafico1.png", style = "centered", width=6.5, height=4) %>%
   print(target = paste0("productos/EXT_BULLETS_COVID-19_",format(Sys.Date(), "%d-%m-%Y"),".docx"), overwrite = T)
 
 
