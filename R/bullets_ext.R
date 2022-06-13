@@ -1,9 +1,9 @@
 
-source("R/funcion_bullets.R")
+source("R/funcion_bullets.R", encoding= "UTF-8")
 pacman::p_load(ggthemes, tidyverse, data.table, extrafont, showtext, lubridate,
                magrittr, flextable, officer, stringi)
 
-fecha_de_trabajo <- Sys.Date()
+fecha_de_trabajo <- Sys.Date()-3
 OMS<-reporte_de_situacion(fecha_de_trabajo)
 
 situacion <- data.frame(OMS[1])
