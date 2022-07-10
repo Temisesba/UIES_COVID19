@@ -108,7 +108,7 @@ indicadores<-function(fecha_de_trabajo){
                            "Democratic_Republic_of_the_Congo"="congo_kinshasa", "Congo"="congo_brazzaville",
                            "Central_African_Republic"="Central_African_Republic", "Côte_d’Ivoire"="Cote_d_Ivoire",
                            "Falkland_Islands_(Malvinas)"="falkland_islands","Guinea-Bissau"="Guinea_Bissau",
-                           "Sint_Eustatius"="smile", "Saba"="smile")) %>%
+                           "Sint_Eustatius"="smile", "Saba"="smile", "Türkiye" =  "Turkey")) %>%
     #filter(Country == "South_Korea") %>%
     mutate(bandera = map_chr(Country, emo::ji)) %>%
     mutate(code = tolower(countrycode(Country, origin = 'country.name', destination = 'iso2c'))) %>%
@@ -116,7 +116,10 @@ indicadores<-function(fecha_de_trabajo){
     #Surcorea es uno de esos países que tienen problema con su código de país
     #Tenemos que volver a recodificarlo quizá sea mejor aplicar which para no usar el mutate
     #o un ifelse (pendiente)
-    mutate(Country = recode(Country, "South_Korea" =  "The Republic of Korea")) %>%
+    #Turquia es otro de los países que requieren que se actualice su información
+    mutate(Country = recode(Country,
+                            "South_Korea" =  "The Republic of Korea",
+                            "Türkiye" =  "Turkey")) %>%
     mutate(code = tolower(countrycode(Country, origin = 'country.name', destination = 'iso2c')))
 
 
